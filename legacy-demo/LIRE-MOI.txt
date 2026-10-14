@@ -1,0 +1,12 @@
+CARNET PLEIN — Démo interactive
+
+Version du 14 octobre 2026, avec les dernières corrections.
+
+Décompressez le ZIP puis ouvrez index.html dans votre navigateur.
+Pour héberger le site : placez index.html, style.css et app.js à la racine de votre hébergement statique. Aucun build nécessaire.
+
+Diagnostic, espace prospect et pilotage inclus.
+Les données sont stockées dans le navigateur (localStorage).
+Aucun serveur, authentification, e-mail, SMS ou agenda réel connecté.
+Les créneaux et entreprises d’exemple sont fictifs.
+Les polices Google nécessitent Internet ; des polices de secours sont prévues.

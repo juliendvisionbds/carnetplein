@@ -1,170 +1,221 @@
-import { CHANGES, DEMO_CTA, FOR_YOU, HERO_POINTS, NOT_FOR_YOU, NO_PROMISE, PRICES, SIMULATOR, TRADES, euro, faq, fr } from "@/content/meta";
-import { NICHES } from "@/content/niches";
-import { faqPage, jsonLdHtml } from "@/lib/seo";
-import Booking from "./Booking";
-import BeforeAfter from "./BeforeAfter";
-import Simulator from "./Simulator";
-import { Changes, Eyebrow, Faq, FinalCta, Fit, Footer, Header, Pricing } from "./sections";
+import Link from "next/link";
+import { MetaBand } from "@/components/MetaBand";
+import { META_TEASER, PRICING } from "@/lib/content";
 
-/** La home : elle fait comprendre l'offre en dix secondes, puis envoie chaque visiteur vers la page de son métier. */
-export default function Page() {
+export default function HomePage() {
   return (
-    <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(faqPage(faq)) }} />
+    <div className="wrap">
+      <div className="hero">
+        <div>
+          <div className="eyebrow">Pour les entreprises qui vendent sur devis</div>
+          <h1>
+            Des demandes,
+            <br />
+            vous en avez.
+            <br />
+            <em>Et les signatures ?</em>
+          </h1>
+          <p>Découvrez où vos projets se perdent, et quoi améliorer pour faire avancer vos devis.</p>
+          <Link className="btn" href="/diagnostic">
+            Trouver mon point de blocage <span>↗</span>
+          </Link>
+          <div className="micro">3 minutes · Gratuit · Résultat immédiat</div>
+        </div>
+        <div className="hero-art" aria-hidden="true">
+          <div className="art-label">Le parcours que vos demandes méritent</div>
+          <div className="paper">
+            <div className="paper-top">
+              <b>Un projet qui avance.</b>
+              <span className="badge">Exemple de parcours</span>
+            </div>
+            <div className="flow-row">
+              <span className="ico">↳</span>
+              <div>
+                <strong>Une nouvelle demande</strong>
+                <small>Le projet, la zone, le bon timing.</small>
+              </div>
+              <span className="tick">✓</span>
+            </div>
+            <div className="flow-row">
+              <span className="ico">↗</span>
+              <div>
+                <strong>Une réponse, tout de suite</strong>
+                <small>« Votre projet est bien entre nos mains. »</small>
+              </div>
+              <span className="tick">✓</span>
+            </div>
+            <div className="flow-row">
+              <span className="ico">◷</span>
+              <div>
+                <strong>Un devis suivi, pas oublié</strong>
+                <small>La bonne relance, au bon moment.</small>
+              </div>
+              <span className="tick">✓</span>
+            </div>
+            <div className="flow-row">
+              <span className="ico">▤</span>
+              <div>
+                <strong>La prochaine action est claire</strong>
+                <small>Qui rappeler, et pourquoi.</small>
+              </div>
+            </div>
+          </div>
+          <div className="notification">
+            <b>Une conversation qui reprend.</b>« Merci pour votre suivi. On peut faire le point demain ? »
+            <div className="micro">Message illustratif</div>
+          </div>
+        </div>
+      </div>
 
-      <Header
-        home="#haut"
-        links={[
-          ["#metiers", "Votre métier"],
-          ["#resultats", "Ce qui change"],
-          ["#tarifs", "Tarifs"],
-          ["#questions", "Questions"],
-        ]}
+      <div className="niches">
+        <span>Votre métier. Votre parcours.</span>
+        <span>Cuisinistes</span>
+        <span>Installateurs</span>
+        <span>Rénovation</span>
+        <span>Déménageurs</span>
+        <span>Wedding planners</span>
+      </div>
+
+      <section className="block">
+        <div className="section-head">
+          <div>
+            <div className="eyebrow">Avant de chercher plus de contacts</div>
+            <h2>
+              Regardons ce qu’il se passe
+              <br />
+              avec ceux que vous avez.
+            </h2>
+          </div>
+          <p>Une demande n’est pas encore un client. Entre les deux, quelques moments font toute la différence.</p>
+        </div>
+        <div className="three">
+          <article className="feature">
+            <span className="num">01 / LE PREMIER CONTACT</span>
+            <h3>
+              « Je le rappelle
+              <br />
+              tout à l’heure. »
+            </h3>
+            <p>La journée avance, les demandes s’accumulent. Votre prospect, lui, attend une réponse.</p>
+          </article>
+          <article className="feature">
+            <span className="num">02 / LE PROJET À COMPRENDRE</span>
+            <h3>
+              « Il me manque
+              <br />
+              encore une info. »
+            </h3>
+            <p>Le besoin est flou, les échanges s’éparpillent. Le devis n’avance pas comme prévu.</p>
+          </article>
+          <article className="feature">
+            <span className="num">03 / LE DEVIS EN ATTENTE</span>
+            <h3>
+              « S’il est intéressé,
+              <br />
+              il reviendra. »
+            </h3>
+            <p>Parfois oui. Parfois il a une question, une hésitation ou simplement besoin d’un suivi.</p>
+          </article>
+        </div>
+      </section>
+
+      <MetaBand
+        eyebrow={META_TEASER.eyebrow}
+        title={META_TEASER.title}
+        body={META_TEASER.body}
+        left="Vous, dans 3 minutes"
+        right="Vos clients, demain"
       />
 
-      <main>
-        <section className="hero hero-home">
-          <div className="in">
-            <div className="hero-text">
+      <section className="block">
+        <div className="dark-block" id="methode">
+          <div>
+            <div className="eyebrow">La méthode Carnet Plein</div>
+            <h2 style={{ marginTop: 20 }}>
+              D’abord comprendre.
+              <br />
+              Ensuite, faire avancer.
+            </h2>
+            <p>Pas besoin de changer tout votre quotidien. On identifie le point de blocage et on construit le parcours autour.</p>
+            <Link className="btn lime" href="/diagnostic">
+              Faire mon diagnostic ↗
+            </Link>
+          </div>
+          <div className="steps">
+            <div className="step">
+              <b>1</b>
               <div>
-                <h1>
-                  Vous recevez déjà des demandes. <em>Vous en signez trop peu.</em>
-                </h1>
-                <p className="lede">
-                  {fr(
-                    "Carnet plein répond à chaque demande en moins d’une minute, relance chaque devis à votre place, et vous dit chaque lundi ce qui marche. Pour les entreprises qui vendent des projets à plus de 1 000 €."
-                  )}
-                </p>
-                <div className="cta">
-                  <a className="btn" href="#metiers">
-                    Voir ce que ça donne pour mon métier <span aria-hidden="true">↓</span>
-                  </a>
-                  <Booking className="btn outline">{DEMO_CTA}</Booking>
-                </div>
+                <h4>Vous nous racontez votre quotidien.</h4>
+                <p>Neuf questions sur vos demandes, vos devis et votre façon de les suivre. Trois minutes.</p>
               </div>
             </div>
-            <div className="art">
-              <BeforeAfter />
-            </div>
-            <ul className="trust">
-              {HERO_POINTS.map((point) => (
-                <li key={point}>{fr(point)}</li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        <section className="section" id="metiers">
-          <div className="in">
-            <h2>Choisissez votre métier</h2>
-            <div className="metiers">
-              {NICHES.map((n) => (
-                <a key={n.slug} className="metier" href={`/${n.slug}/`}>
-                  <svg viewBox="0 0 28 28" aria-hidden="true">
-                    <path d={n.card.icon} />
-                  </svg>
-                  <b>{n.card.name}</b>
-                  <span>
-                    Projet moyen : {euro(n.vars.panier)} HT
-                  </span>
-                  <i>
-                    Voir la page <span aria-hidden="true">→</span>
-                  </i>
-                </a>
-              ))}
-              <Booking className="metier">
-                <svg viewBox="0 0 28 28" aria-hidden="true">
-                  <path d="M14 6v16M6 14h16" />
-                </svg>
-                <b>Autre métier</b>
-                <span>On prépare la démo pour le vôtre</span>
-                <i>
-                  Recevoir ma page refaite <span aria-hidden="true">→</span>
-                </i>
-              </Booking>
-            </div>
-          </div>
-        </section>
-
-        <section className="section dark">
-          <div className="in problem">
-            <div>
-              <Eyebrow label="Le client perdu" />
-              <h2>Le client qui a signé ailleurs avait d’abord appelé chez vous</h2>
-              <p className="lede">
-                Samedi, 15h. Une famille remplit votre formulaire pour son projet. Vous êtes en rendez-vous, puis chez vous. Lundi, vous
-                rappelez. Ils ont déjà vu quelqu’un d’autre, celui qui avait répondu le samedi.
-              </p>
-              <p className="lede">
-                Ce n’est pas un problème de pub. Ces gens vous avaient trouvé. Ils sont partis parce que personne n’a répondu à temps, ou que
-                le devis n’a jamais été relancé.
-              </p>
-            </div>
-            <div className="fact">
-              <b>×7</b>
-              <p>
-                {fr("Répondre dans l’heure multiplie par 7 les chances d’avoir un vrai échange. Délai moyen constaté : 42 heures.")}
-                <small>Harvard Business Review</small>
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <Changes items={CHANGES} />
-
-        <section className="section band">
-          <div className="in">
-            <Eyebrow label="Comment ça marche" />
-            <h2>Le même principe, adapté à chaque métier</h2>
-            <div className="table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Métier</th>
-                    <th>Ce que voit le visiteur</th>
-                    <th>Le rendez-vous proposé</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {TRADES.map((t) => (
-                    <tr key={t.trade}>
-                      <td>{t.trade}</td>
-                      <td data-label="Ce que voit le visiteur">{fr(t.sees)}</td>
-                      <td data-label="Le rendez-vous proposé">{t.meeting}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="table-note">Chaque page est construite pour votre métier, avec vos prix, vos photos et vos mots.</p>
-          </div>
-        </section>
-
-        <section className="section" id="simulateur">
-          <div className="in">
-            <Eyebrow label="Le simulateur" />
-            <h2>Faites le calcul avec vos chiffres</h2>
-            <Simulator {...SIMULATOR} install={PRICES.install} />
-          </div>
-        </section>
-
-        <Fit title="On ne prend pas tout le monde, et on ne promet pas tout." yes={FOR_YOU} no={NOT_FOR_YOU}>
-          <div className="limits">
-            {NO_PROMISE.map(([heading, text]) => (
-              <div key={heading}>
-                <h3>{fr(heading)}</h3>
-                <p>{fr(text)}</p>
+            <div className="step">
+              <b>2</b>
+              <div>
+                <h4>Vous recevez votre diagnostic, tout de suite.</h4>
+                <p>Votre priorité, trois actions concrètes et un espace personnel pour tout retrouver. Même si vous n’allez pas plus loin.</p>
               </div>
-            ))}
+            </div>
+            <div className="step">
+              <b>3</b>
+              <div>
+                <h4>On construit la démo complète de votre tunnel de vente.</h4>
+                <p>À vos couleurs, pour votre métier. On vous l’envoie, puis on en parle 15 minutes. Vous décidez après l’avoir vue.</p>
+              </div>
+            </div>
           </div>
-        </Fit>
+        </div>
+      </section>
 
-        <Pricing />
-        <Faq items={faq} />
-        <FinalCta title="Vos prochains clients vous ont peut-être déjà écrit." cta={DEMO_CTA} />
-      </main>
+      <section className="block faq">
+        <h2>Les questions légitimes.</h2>
+        <details>
+          <summary>Est-ce que vous remplacez mon site ?</summary>
+          <p>
+            Non. Carnet Plein ajoute une page de demande et un parcours de suivi adaptés à votre entreprise. L’installation prend deux
+            semaines, sans refaire votre site.
+          </p>
+        </details>
+        <details>
+          <summary>Est-ce que vous m’apportez de nouveaux contacts ?</summary>
+          <p>
+            L’offre vise à mieux traiter et suivre les demandes que vous recevez déjà. Si votre difficulté principale est le manque de
+            demandes, le diagnostic vous le signalera : le suivi seul ne remplace pas une stratégie d’acquisition.
+          </p>
+        </details>
+        <details>
+          <summary>Dois-je payer avant de voir le résultat ?</summary>
+          <p>
+            Non. Le diagnostic est gratuit et immédiat. La démo de votre tunnel de vente est gratuite aussi. Si elle vous plaît, on en parle
+            15 minutes, puis l’installation ({PRICING.setup}) et le suivi ({PRICING.monthly}) viennent ensuite, {PRICING.footnote.toLowerCase()}.
+          </p>
+        </details>
+        <details>
+          <summary>Est-ce un nouveau logiciel à gérer ?</summary>
+          <p>
+            Nous installons le parcours et préparons les messages avec vous. Vous gardez la relation avec vos clients et une liste claire
+            des prochaines actions. La compatibilité avec vos outils est vérifiée avant l’installation.
+          </p>
+        </details>
+        <details>
+          <summary>Que faites-vous de mes informations ?</summary>
+          <p>
+            Elles servent à préparer votre diagnostic, votre démo et à vous recontacter à ce sujet. Rien d’autre. Vous pouvez demander leur
+            suppression à tout moment. Détails sur la page <Link href="/confidentialite">Confidentialité</Link>.
+          </p>
+        </details>
+      </section>
 
-      <Footer home="#haut" />
-    </>
+      <div className="cta-band">
+        <div className="eyebrow" style={{ justifyContent: "center", marginBottom: 18 }}>
+          Votre prochaine signature commence peut-être ici
+        </div>
+        <h2>Quel est votre point de blocage ?</h2>
+        <p>Trois minutes pour prendre du recul sur votre parcours commercial.</p>
+        <Link className="btn" href="/diagnostic">
+          Faire mon diagnostic gratuit ↗
+        </Link>
+      </div>
+    </div>
   );
 }
