@@ -64,6 +64,14 @@ Sans lien, l’espace propose un formulaire de demande de créneau (jour + heure
 | `AGENCY_NOTIFY_EMAIL` | recommandé | Reçoit les nouveaux leads et demandes de RDV |
 | `NEXT_PUBLIC_BOOKING_URL` | facultatif | Lien Cal.com / Calendly |
 
+   Ou, sans saisie manuelle, depuis votre poste une fois connecté au CLI (`npx vercel login`) et le dossier lié (`npx vercel link`) :
+
+   ```bash
+   scripts/vercel-env-push.sh production
+   ```
+
+   Le script lit `.env.local`, pousse chaque variable (les secrets en mode « sensitive ») et n'affiche jamais les valeurs. `EXCLUDE="NEXT_PUBLIC_SITE_URL" scripts/vercel-env-push.sh production` ignore une variable, utile quand l'URL locale diffère de l'URL de production.
+
 3. Déployez. Testez le parcours complet avec votre propre e-mail, puis supprimez le dossier de test depuis `/admin`.
 
 ## Personnaliser
