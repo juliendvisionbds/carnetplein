@@ -15,7 +15,7 @@ import {
 import { BOOKING_URL, CALL, DEMO_DELAY, META } from "@/lib/content";
 import { MetaBand } from "@/components/MetaBand";
 import { TrackView } from "@/components/espace/TrackView";
-import { Booking } from "@/components/espace/Booking";
+import { CallModal } from "@/components/espace/CallModal";
 import { Simulator } from "@/components/espace/Simulator";
 import { ClientPreview } from "@/components/espace/ClientPreview";
 import { DemoLink } from "@/components/espace/DemoLink";
@@ -55,6 +55,7 @@ export default async function EspacePage({ params }: { params: Promise<{ token: 
   return (
     <div className="wrap">
       <TrackView token={token} />
+      <CallModal token={token} name={lead.name} email={lead.email} bookingUrl={BOOKING_URL} initial={lead.booking} />
 
       <div className="page-head">
         <div className="eyebrow">Votre espace · {company}</div>
@@ -77,8 +78,10 @@ export default async function EspacePage({ params }: { params: Promise<{ token: 
       <div className="result-layout" style={{ marginTop: 40 }}>
         <div>
           <div className="panel lavender">
-            <span className="badge purple">Votre priorité · {p.tag}</span>{" "}
-            <span className={`badge ${d.intensity === "forte" ? "orange" : "grey"}`}>Intensité {d.intensity}</span>
+            <div className="priority-row">
+              <span className="badge lg lime">Votre priorité · {p.tag}</span>
+              <span className={`badge lg ${d.intensity === "forte" ? "orange" : "grey"}`}>Intensité {d.intensity}</span>
+            </div>
             <h2>{p.title}</h2>
             <p>{p.intro}</p>
             {EVIDENCE_IDS[d.key].map((id) => (
@@ -87,9 +90,10 @@ export default async function EspacePage({ params }: { params: Promise<{ token: 
               </div>
             ))}
             {d.secondary && (
-              <div className="notice">
+              <div className="signal">
+                <span className="signal-tag">Signal secondaire</span>
                 <b>À surveiller aussi : {profiles[d.secondary].tag.toLowerCase()}</b>
-                Vos réponses indiquent que {SECONDARY_HINT[d.secondary]}. Nous en tiendrons compte dans votre démo.
+                <p>Vos réponses indiquent que {SECONDARY_HINT[d.secondary]}. Nous en tiendrons compte dans votre démo.</p>
               </div>
             )}
             <p className="micro">{footnote}</p>
@@ -159,7 +163,24 @@ export default async function EspacePage({ params }: { params: Promise<{ token: 
             </div>
           </div>
 
-          <Booking token={token} name={lead.name} email={lead.email} bookingUrl={BOOKING_URL} initial={lead.booking} />
+          <div className="panel call-card">
+            <div className="eyebrow">On regarde ça ensemble ?</div>
+            <h3 style={{ marginTop: 18 }}>
+              {CALL.duration}.
+              <br />
+              Votre projet à l’écran.
+            </h3>
+            <p style={{ fontSize: 13 }}>
+              {booked
+                ? lead.booking?.kind === "request"
+                  ? "Votre demande de créneau est envoyée, nous la confirmons par e-mail."
+                  : "Votre rendez-vous est confirmé, l’invitation est dans votre agenda."
+                : "On vous montre la démo de votre tunnel de vente, construite pour votre métier, et on la confronte à votre diagnostic. Gratuit, en visio ou par téléphone."}
+            </p>
+            <a className="btn lime block" href="#rdv">
+              {booked ? "Voir ou modifier mon rendez-vous" : CALL.title} <span>↗</span>
+            </a>
+          </div>
 
           <div className="panel">
             <div className="eyebrow">Votre parcours, demain</div>

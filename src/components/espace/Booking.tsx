@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Booking as BookingData } from "@/lib/store";
 import { CALL } from "@/lib/content";
 import { toast } from "@/components/Toaster";
-import { track } from "./track";
 
 type Props = { token: string; name: string; email: string; bookingUrl: string; initial: BookingData | null };
 
@@ -29,6 +28,7 @@ function embedUrl(base: string, name: string, email: string): string {
     u.searchParams.set("email", email);
     if (u.hostname.includes("calendly.com")) {
       u.searchParams.set("hide_gdpr_banner", "1");
+      u.searchParams.set("hide_event_type_details", "1");
       u.searchParams.set("embed_domain", window.location.hostname);
       u.searchParams.set("embed_type", "Inline");
     }
@@ -42,7 +42,8 @@ function embedUrl(base: string, name: string, email: string): string {
   }
 }
 
-export function Booking({ token, name, email, bookingUrl, initial }: Props) {
+/** Le contenu de réservation : agenda intégré (Calendly, Cal.com) ou formulaire interne de demande de créneau. */
+export function BookingWidget({ token, name, email, bookingUrl, initial }: Props) {
   const router = useRouter();
   const [booking, setBooking] = useState<BookingData | null>(initial);
   const [editing, setEditing] = useState(false);
@@ -53,29 +54,11 @@ export function Booking({ token, name, email, bookingUrl, initial }: Props) {
   const [day, setDay] = useState(days[0]?.iso ?? "");
   const [time, setTime] = useState(TIMES[0]);
   const [message, setMessage] = useState("");
-  const sectionRef = useRef<HTMLDivElement>(null);
 
   // L’URL d’intégration dépend du nom de domaine : calculée côté navigateur.
   useEffect(() => {
     if (bookingUrl) setSrc(embedUrl(bookingUrl, name, email));
   }, [bookingUrl, name, email]);
-
-  // Journalise la première fois que la section rendez-vous devient visible.
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          track(token, "booking_viewed");
-          obs.disconnect();
-        }
-      },
-      { threshold: 0.4 },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [token]);
 
   async function save(payload: Record<string, unknown>) {
     setSaving(true);
@@ -123,19 +106,10 @@ export function Booking({ token, name, email, bookingUrl, initial }: Props) {
     if (ok) toast("Demande envoyée. Nous confirmons le créneau par e-mail.");
   }
 
-  const confirmed = booking && !editing;
-
-  return (
-    <div className="panel" id="rdv" ref={sectionRef}>
-      <div className="eyebrow">On regarde ça ensemble ?</div>
-      <h3 style={{ marginTop: 18 }}>
-        {CALL.duration}.
-        <br />
-        Votre projet à l’écran.
-      </h3>
-
-      {confirmed ? (
-        <div className="success" style={{ marginTop: 16 }}>
+  if (booking && !editing) {
+    return (
+      <div className="booking-done">
+        <div className="success">
           <b>{booking.kind === "embed" ? "Rendez-vous confirmé." : "Demande de créneau envoyée."}</b>
           {booking.kind === "request" ? (
             <>
@@ -150,59 +124,65 @@ export function Booking({ token, name, email, bookingUrl, initial }: Props) {
             <>Vous recevez l’invitation dans votre agenda. À très vite.</>
           )}
         </div>
-      ) : bookingUrl ? (
-        <>
-          <p style={{ fontSize: 13 }}>Choisissez le créneau qui vous convient. L’invitation arrive directement dans votre agenda.</p>
-          <div className="booking-embed">{src && <iframe title="Réserver un créneau" src={src} loading="lazy" allow="payment" />}</div>
-          <div className="micro">
-            Un souci avec l’agenda ?{" "}
-            <a href={bookingUrl} target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>
-              Ouvrir dans une nouvelle fenêtre
-            </a>
-          </div>
-        </>
-      ) : (
-        <form onSubmit={submitRequest}>
-          <p style={{ fontSize: 13 }}>Indiquez le créneau qui vous arrange. Nous vous le confirmons par e-mail.</p>
-          <label className="field">
-            Jour
-            <select value={day} onChange={(e) => setDay(e.target.value)} required>
-              {days.map((d) => (
-                <option key={d.iso} value={d.iso}>
-                  {d.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="field" style={{ marginTop: 12 }}>
-            Heure de Paris
-            <div className="slots" role="radiogroup" aria-label="Heure">
-              {TIMES.map((t) => (
-                <button key={t} type="button" role="radio" aria-checked={time === t} className={time === t ? "selected" : ""} onClick={() => setTime(t)}>
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-          <label className="field" style={{ marginTop: 12 }}>
-            Un mot pour préparer l’échange (facultatif)
-            <textarea rows={2} maxLength={600} value={message} onChange={(e) => setMessage(e.target.value)} />
-          </label>
-          {error && (
-            <p className="error" role="alert">
-              {error}
-            </p>
-          )}
-          <button className="btn lime block" style={{ marginTop: 20 }} type="submit" disabled={saving}>
-            {saving ? "Envoi…" : booking ? "Proposer ce créneau ↗" : `${CALL.title} ↗`}
-          </button>
-          {booking && (
-            <button type="button" className="text-btn" style={{ marginTop: 12 }} onClick={() => setEditing(false)}>
-              Annuler
+      </div>
+    );
+  }
+
+  if (bookingUrl) {
+    return (
+      <div className="booking-embed">
+        {src && <iframe title="Réserver un créneau" src={src} allow="payment" />}
+        <div className="micro" style={{ textAlign: "center" }}>
+          Un souci avec l’agenda ?{" "}
+          <a href={bookingUrl} target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>
+            Ouvrir dans une nouvelle fenêtre
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={submitRequest} className="booking-form">
+      <h3>Choisissez un créneau</h3>
+      <p style={{ fontSize: 13 }}>Indiquez le créneau qui vous arrange. Nous vous le confirmons par e-mail.</p>
+      <label className="field">
+        Jour
+        <select value={day} onChange={(e) => setDay(e.target.value)} required>
+          {days.map((d) => (
+            <option key={d.iso} value={d.iso}>
+              {d.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <div className="field" style={{ marginTop: 12 }}>
+        Heure de Paris
+        <div className="slots" role="radiogroup" aria-label="Heure">
+          {TIMES.map((t) => (
+            <button key={t} type="button" role="radio" aria-checked={time === t} className={time === t ? "selected" : ""} onClick={() => setTime(t)}>
+              {t}
             </button>
-          )}
-        </form>
+          ))}
+        </div>
+      </div>
+      <label className="field" style={{ marginTop: 12 }}>
+        Un mot pour préparer l’échange (facultatif)
+        <textarea rows={2} maxLength={600} value={message} onChange={(e) => setMessage(e.target.value)} />
+      </label>
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
       )}
-    </div>
+      <button className="btn lime block" style={{ marginTop: 20 }} type="submit" disabled={saving}>
+        {saving ? "Envoi…" : booking ? "Proposer ce créneau ↗" : `${CALL.title} ↗`}
+      </button>
+      {booking && (
+        <button type="button" className="text-btn" style={{ marginTop: 12 }} onClick={() => setEditing(false)}>
+          Annuler
+        </button>
+      )}
+    </form>
   );
 }
