@@ -100,7 +100,7 @@ export default function HomePage() {
         </div>
         <div className="three">
           <article className="feature">
-            <span className="num">01 / LE PREMIER CONTACT</span>
+            <span className="num"><i>01</i> Le premier contact</span>
             <h3>
               « Je le rappelle
               <br />
@@ -109,7 +109,7 @@ export default function HomePage() {
             <p>La journée avance, les demandes s’accumulent. Votre prospect, lui, attend une réponse.</p>
           </article>
           <article className="feature">
-            <span className="num">02 / LE PROJET À COMPRENDRE</span>
+            <span className="num"><i>02</i> Le projet à comprendre</span>
             <h3>
               « Il me manque
               <br />
@@ -118,7 +118,7 @@ export default function HomePage() {
             <p>Le besoin est flou, les échanges s’éparpillent. Le devis n’avance pas comme prévu.</p>
           </article>
           <article className="feature">
-            <span className="num">03 / LE DEVIS EN ATTENTE</span>
+            <span className="num"><i>03</i> Le devis en attente</span>
             <h3>
               « S’il est intéressé,
               <br />

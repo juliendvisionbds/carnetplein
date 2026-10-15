@@ -170,7 +170,7 @@ export default async function EspacePage({ params }: { params: Promise<{ token: 
 
           <div className="panel">
             <div className="eyebrow">Votre parcours, demain</div>
-            <div className="preview-path">
+            <div className="preview-path steps-path">
               {p.projection.map((x, i) => (
                 <div key={x}>
                   <small>ÉTAPE 0{i + 1}</small>
