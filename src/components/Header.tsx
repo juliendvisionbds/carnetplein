@@ -20,6 +20,7 @@ export function Header() {
 
   const isAdmin = pathname.startsWith("/admin");
   const inEspace = pathname.startsWith("/espace");
+  const inQuiz = pathname.startsWith("/diagnostic");
 
   return (
     <header className="site">
@@ -32,6 +33,12 @@ export function Header() {
             <Link href="/admin">Pilotage</Link>
             <Link href="/">Site public ↗</Link>
           </>
+        ) : inQuiz ? (
+          <span className="nav-note">
+            <i aria-hidden="true">✓</i>
+            Gratuit · 3 minutes · <span className="hide-sm">Réponses confidentielles</span>
+            <span className="only-sm">Confidentiel</span>
+          </span>
         ) : (
           <>
             <Link href="/#methode">La méthode</Link>
