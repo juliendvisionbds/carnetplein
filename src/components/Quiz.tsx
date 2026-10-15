@@ -6,8 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   SECTIONS,
   isAnswered,
-  profiles,
-  diagnose,
   questions,
   resolve,
   type Answers,
@@ -15,10 +13,10 @@ import {
 import { LEAD_TOKEN_KEY, QUIZ_STATE_KEY, SKIP_RESUME_KEY, UTM_KEY, readJSON, writeJSON } from "@/lib/client-storage";
 import { toast } from "@/components/Toaster";
 
-type Contact = { name: string; company: string; email: string; website: string; phone: string; context: string; consent: boolean };
+type Contact = { name: string; email: string; website: string; consent: boolean };
 type QuizState = { answers: Answers; step: number; contact: Contact };
 
-const emptyContact: Contact = { name: "", company: "", email: "", website: "", phone: "", context: "", consent: false };
+const emptyContact: Contact = { name: "", email: "", website: "", consent: false };
 const initial: QuizState = { answers: {}, step: 0, contact: emptyContact };
 const TOTAL = questions.length + 1; // 10 questions + coordonnées
 
@@ -120,7 +118,7 @@ export function Quiz() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           answers: state.answers,
-          contact: { ...c, company: c.company || undefined, phone: c.phone || undefined, context: c.context || undefined },
+          contact: c,
           utm: readJSON<Record<string, string> | null>(UTM_KEY, null) ?? undefined,
           fax,
         }),
@@ -171,8 +169,6 @@ export function Quiz() {
     );
   }
 
-  const preview = isContactStep ? profiles[diagnose(state.answers).key] : null;
-
   return (
     <div className="quiz-layout">
       <aside className="quiz-aside">
@@ -190,7 +186,7 @@ export function Quiz() {
           </div>
         ))}
         <div className="info-badge" role="note">
-          <i aria-hidden="true">↻</i>
+          <i aria-hidden="true">i</i>
           <span>Vos réponses sont enregistrées au fil de l’eau : vous pouvez revenir plus tard.</span>
         </div>
       </aside>
@@ -254,8 +250,8 @@ export function Quiz() {
           <form onSubmit={submit} noValidate={false}>
             <h2>Dernière étape : où vous envoyer votre diagnostic ?</h2>
             <p>
-              Votre priorité est prête{preview ? <> : <b>{preview.tag}</b></> : null}. Vos coordonnées nous permettent de vous l’envoyer, puis de
-              construire la démo de votre tunnel de vente à partir de vos réponses.
+              Votre diagnostic est prêt. Indiquez où l’envoyer : vous y accédez tout de suite, et vos réponses servent ensuite à construire
+              la démo de votre tunnel de vente.
             </p>
             <div className="form-grid">
               <label className="field">
@@ -292,35 +288,6 @@ export function Quiz() {
                   onChange={(e) => update((s) => ({ contact: { ...s.contact, website: e.target.value } }))}
                 />
               </label>
-              <label className="field">
-                Votre entreprise
-                <input
-                  name="company"
-                  autoComplete="organization"
-                  value={state.contact.company}
-                  onChange={(e) => update((s) => ({ contact: { ...s.contact, company: e.target.value } }))}
-                />
-              </label>
-              <label className="field">
-                Votre téléphone
-                <input
-                  name="phone"
-                  type="tel"
-                  autoComplete="tel"
-                  value={state.contact.phone}
-                  onChange={(e) => update((s) => ({ contact: { ...s.contact, phone: e.target.value } }))}
-                />
-              </label>
-              <label className="field full">
-                Un détail utile pour votre démo ?
-                <textarea
-                  name="context"
-                  rows={2}
-                  placeholder="Votre zone, vos outils actuels, ce que vous aimeriez voir…"
-                  value={state.contact.context}
-                  onChange={(e) => update((s) => ({ contact: { ...s.contact, context: e.target.value } }))}
-                />
-              </label>
               <input type="text" name="fax" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: "absolute", left: -9999, width: 1, height: 1 }} />
             </div>
             <label className="check">
@@ -330,12 +297,7 @@ export function Quiz() {
                 checked={state.contact.consent}
                 onChange={(e) => update((s) => ({ contact: { ...s.contact, consent: e.target.checked } }))}
               />
-              <span>
-                J’accepte de recevoir mon diagnostic, la démo de mon tunnel de vente et d’être recontacté à ce sujet.{" "}
-                <Link href="/confidentialite" target="_blank" style={{ textDecoration: "underline" }}>
-                  Confidentialité
-                </Link>
-              </span>
+              <span>J’accepte de recevoir mon diagnostic, la démo de mon tunnel de vente et d’être recontacté à ce sujet.</span>
             </label>
             {error && (
               <p className="error" role="alert">

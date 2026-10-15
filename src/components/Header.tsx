@@ -21,6 +21,7 @@ export function Header() {
   const isAdmin = pathname.startsWith("/admin");
   const inEspace = pathname.startsWith("/espace");
   const inQuiz = pathname.startsWith("/diagnostic");
+  const espaceToken = inEspace ? pathname.split("/")[2] : null;
 
   return (
     <header className="site">
@@ -36,17 +37,24 @@ export function Header() {
         ) : inQuiz ? (
           <span className="nav-note">
             <i aria-hidden="true">✓</i>
-            Gratuit · <span className="hide-sm">3 minutes · Réponses confidentielles</span>
-            <span className="only-sm">confidentiel</span>
+            Gratuit · <span className="hide-sm">3 minutes · Réponses confidentielles</span><span className="only-sm">confidentiel</span>
           </span>
         ) : (
           <>
-            <Link href="/#methode">La méthode</Link>
+            {!inEspace && <Link href="/#methode">La méthode</Link>}
             {token && !inEspace && <Link href={`/espace/${token}`}>Mon espace</Link>}
             {inEspace ? (
-              <a className="btn small lime" href="#rdv">
-                Réserver mon appel <span>↗</span>
-              </a>
+              <>
+                {espaceToken && (
+                  <a className="btn small outline" href={`/api/leads/${espaceToken}/synthese`} download>
+                    <span className="hide-sm">Ma synthèse (PDF)</span>
+                    <span className="only-sm">PDF</span> ↓
+                  </a>
+                )}
+                <a className="btn small lime" href="#rdv">
+                  Réserver mon appel <span>↗</span>
+                </a>
+              </>
             ) : (
               <Link className="btn small" href="/diagnostic">
                 Faire le diagnostic <span>↗</span>

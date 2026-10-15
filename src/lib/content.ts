@@ -5,7 +5,7 @@
 
 export const SITE = {
   name: "Carnet Plein",
-  tagline: "Moins de demandes oubliées. Plus de projets qui avancent.",
+  tagline: "Moins de demandes oubliées. Plus de projets signés.",
   description:
     "Découvrez où vos demandes de devis se perdent. Carnet Plein installe votre parcours de conversion et suit vos prospects jusqu’à leur décision.",
   url: process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "http://localhost:3000",

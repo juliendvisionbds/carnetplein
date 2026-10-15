@@ -3,6 +3,8 @@ type Props = {
   title: string;
   body: string;
   punchline?: string;
+  /** Bouton affiché à la place de la punchline. */
+  cta?: { href: string; label: string };
   /** Libellés des deux colonnes du miroir. */
   left?: string;
   right?: string;
@@ -11,14 +13,20 @@ type Props = {
 const STEPS = ["Les bonnes questions", "Une réponse immédiate", "Une page à son nom", "Un suivi jusqu’à la décision"];
 
 /** La bande « méta » : le parcours vécu par le prospect est exactement celui que vivront ses clients. */
-export function MetaBand({ eyebrow, title, body, punchline, left = "Vous, à l’instant", right = "Vos clients, demain" }: Props) {
+export function MetaBand({ eyebrow, title, body, punchline, cta, left = "Vous, à l’instant", right = "Vos clients, demain" }: Props) {
   return (
     <section className="meta-band" aria-label="Le parcours que vous venez de vivre">
       <div>
         <div className="eyebrow">{eyebrow}</div>
         <h2>{title}</h2>
         <p>{body}</p>
-        {punchline && <span className="punch">{punchline}</span>}
+        {cta ? (
+          <a className="btn" href={cta.href}>
+            {cta.label} <span>↗</span>
+          </a>
+        ) : (
+          punchline && <span className="punch">{punchline}</span>
+        )}
       </div>
       <div className="mirror" aria-hidden="true">
         <div className="col">

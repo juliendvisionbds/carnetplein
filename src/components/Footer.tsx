@@ -9,7 +9,8 @@ export function Footer() {
       </Link>
       <span>{SITE.tagline}</span>
       <span>
-        © {new Date().getFullYear()} {SITE.name} · <Link className="small" href="/confidentialite">Confidentialité</Link>
+        © {new Date().getFullYear()} {SITE.name} · <Link className="small" href="/mentions-legales">Mentions légales</Link> ·{" "}
+        <Link className="small" href="/confidentialite">Confidentialité</Link>
       </span>
     </footer>
   );

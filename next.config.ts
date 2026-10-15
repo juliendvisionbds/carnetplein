@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Génération PDF côté serveur : la bibliothèque reste en dépendance externe et les polices sont embarquées dans la fonction.
+  serverExternalPackages: ["@react-pdf/renderer"],
+  outputFileTracingIncludes: { "/api/leads/[token]/synthese": ["./src/assets/fonts/*.ttf"] },
   async headers() {
     return [
       {

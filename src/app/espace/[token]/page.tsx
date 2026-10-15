@@ -12,13 +12,11 @@ import {
   profiles,
   simulationDefaults,
 } from "@/lib/diagnostic";
-import { BOOKING_URL, CALL, DEMO_DELAY, META, PRICING } from "@/lib/content";
-import { buildReport } from "@/lib/report";
+import { BOOKING_URL, CALL, DEMO_DELAY, META } from "@/lib/content";
 import { MetaBand } from "@/components/MetaBand";
 import { TrackView } from "@/components/espace/TrackView";
 import { Booking } from "@/components/espace/Booking";
 import { Simulator } from "@/components/espace/Simulator";
-import { DownloadReport } from "@/components/espace/DownloadReport";
 import { ClientPreview } from "@/components/espace/ClientPreview";
 import { DemoLink } from "@/components/espace/DemoLink";
 
@@ -43,7 +41,6 @@ export default async function EspacePage({ params }: { params: Promise<{ token: 
   const demoSent = Boolean(lead.demo_url) || lead.stage >= STAGE_DEMO_SENT;
   const booked = Boolean(lead.booking);
   const sim = simulationDefaults(a);
-  const report = buildReport(lead);
 
   const footnote = d.uncertain
     ? "Plusieurs réponses sont incertaines : commencez par observer votre activité pendant un mois, la démo vous y aidera."
@@ -74,11 +71,8 @@ export default async function EspacePage({ params }: { params: Promise<{ token: 
           <a className="btn lime" href="#rdv">
             {CALL.title} <span>↗</span>
           </a>
-          <DownloadReport token={token} content={report} className="btn outline" />
         </div>
       </div>
-
-      <MetaBand eyebrow={META.eyebrow} title={META.title} body={META.body} punchline={META.punchline} />
 
       <div className="result-layout" style={{ marginTop: 40 }}>
         <div>
@@ -113,7 +107,6 @@ export default async function EspacePage({ params }: { params: Promise<{ token: 
                 </li>
               ))}
             </ol>
-            <DownloadReport token={token} content={report} />
           </div>
 
           <Simulator {...sim} />
@@ -178,24 +171,11 @@ export default async function EspacePage({ params }: { params: Promise<{ token: 
                 </div>
               ))}
             </div>
-            <h4>Et après la démo ?</h4>
-            <p style={{ fontSize: 13 }}>
-              Si elle vous plaît : installation à <b>{PRICING.setup}</b>, puis suivi à <b>{PRICING.monthly}</b>. {PRICING.footnote}.
-            </p>
           </div>
         </aside>
       </div>
 
-      <div className="cta-band">
-        <div className="eyebrow" style={{ justifyContent: "center", marginBottom: 18 }}>
-          La suite tient en {CALL.duration}
-        </div>
-        <h2>On regarde votre tunnel de vente ensemble ?</h2>
-        <p>Vos réponses à l’écran, votre démo en préparation, et vos questions. Sans engagement.</p>
-        <a className="btn" href="#rdv">
-          {CALL.title} ↗
-        </a>
-      </div>
+      <MetaBand eyebrow={META.eyebrow} title={META.title} body={META.body} cta={{ href: "#rdv", label: CALL.title }} />
     </div>
   );
 }
