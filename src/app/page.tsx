@@ -16,10 +16,6 @@ export default function HomePage() {
             <em>Et les signatures ?</em>
           </h1>
           <p>Découvrez où vos projets se perdent, et quoi améliorer pour transformer plus de demandes en clients.</p>
-          <Link className="btn" href="/diagnostic">
-            Trouver mon point de blocage <span>↗</span>
-          </Link>
-          <div className="micro">3 minutes · Gratuit · Résultat immédiat</div>
         </div>
         <HeroQuestion />
       </div>
