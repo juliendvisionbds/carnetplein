@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { MetaBand } from "@/components/MetaBand";
-import { META_TEASER, PRICING } from "@/lib/content";
+import { DEMO_DELAY, META_TEASER, PRICING } from "@/lib/content";
 
 export default function HomePage() {
   return (
@@ -67,24 +67,30 @@ export default function HomePage() {
         </div>
       </div>
 
-      <ul className="reassure" aria-label="Ce que vous pouvez attendre">
-        <li>
-          <b>Sans refaire votre site</b>
-          <span>Une page de demande qui s’ajoute à l’existant.</span>
-        </li>
-        <li>
-          <b>Installé en deux semaines</b>
-          <span>Parcours et messages préparés avec vous.</span>
-        </li>
-        <li>
-          <b>Pas de logiciel à apprendre</b>
-          <span>Une liste claire de qui rappeler, et pourquoi.</span>
-        </li>
-        <li>
-          <b>Sans engagement de durée</b>
-          <span>Démo gratuite, vous décidez après l’avoir vue.</span>
-        </li>
-      </ul>
+      <section className="outcomes" aria-label="Ce que vous obtenez en 3 minutes">
+        <div className="outcomes-title">
+          Ce que vous obtenez
+          <span>en 3 minutes</span>
+        </div>
+        <ol>
+          <li>
+            <b>Votre point de blocage n°1</b>
+            <span>Là où vos demandes se perdent, d’après vos réponses.</span>
+          </li>
+          <li>
+            <b>Trois actions à faire cette semaine</b>
+            <span>Concrètes, applicables avec vos outils actuels.</span>
+          </li>
+          <li>
+            <b>Votre espace personnel</b>
+            <span>Diagnostic, plan d’action et suite, au même endroit.</span>
+          </li>
+          <li>
+            <b>La démo de votre tunnel, à vos couleurs</b>
+            <span>Construite pour votre métier, envoyée {DEMO_DELAY}.</span>
+          </li>
+        </ol>
+      </section>
 
       <section className="block">
         <div className="section-head">
