@@ -36,8 +36,8 @@ export function Header() {
         ) : inQuiz ? (
           <span className="nav-note">
             <i aria-hidden="true">✓</i>
-            Gratuit · 3 minutes · <span className="hide-sm">Réponses confidentielles</span>
-            <span className="only-sm">Confidentiel</span>
+            Gratuit · <span className="hide-sm">3 minutes · Réponses confidentielles</span>
+            <span className="only-sm">confidentiel</span>
           </span>
         ) : (
           <>

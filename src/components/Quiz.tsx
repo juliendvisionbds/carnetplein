@@ -189,7 +189,10 @@ export function Quiz() {
             {label}
           </div>
         ))}
-        <p className="micro">Vos réponses sont enregistrées au fil de l’eau : vous pouvez revenir plus tard.</p>
+        <div className="info-badge" role="note">
+          <i aria-hidden="true">↻</i>
+          <span>Vos réponses sont enregistrées au fil de l’eau : vous pouvez revenir plus tard.</span>
+        </div>
       </aside>
 
       <section className="quiz-card">

@@ -150,6 +150,8 @@ details p{font-size:14px}
 .quiz-aside{padding-top:20px}
 .quiz-aside h3{font-size:25px;margin:20px 0}
 .quiz-aside p{font-size:13px}
+.info-badge{display:flex;gap:10px;align-items:flex-start;background:var(--soft);border:1px solid #dbd6e8;border-radius:9px;padding:11px 13px;font-size:12px;line-height:1.45;color:#5d5a72;margin-top:22px}
+.info-badge i{font-style:normal;width:20px;height:20px;border-radius:50%;background:#fff;border:1px solid #dbd6e8;display:grid;place-items:center;font-size:12px;color:#7561a1;flex-shrink:0}
 .quiz-step{display:flex;align-items:center;gap:10px;padding:9px 0;color:var(--muted);font-size:13px}
 .quiz-step.active{color:var(--ink);font-weight:700}
 .quiz-step.done{color:#5f7a3a}
