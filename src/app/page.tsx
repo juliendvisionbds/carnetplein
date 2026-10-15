@@ -95,11 +95,7 @@ export default function HomePage() {
       <section className="block">
         <div className="section-head">
           <div className="eyebrow">Avant de chercher plus de contacts</div>
-          <h2>
-            Regardons ce qu’il se passe
-            <br />
-            avec ceux que vous avez.
-          </h2>
+          <h2>Regardons ce qu’il se passe avec les demandes que vous avez déjà.</h2>
           <p>Une demande n’est pas encore un client. Entre les deux, quelques moments font toute la différence.</p>
         </div>
         <div className="three">
