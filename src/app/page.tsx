@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeroQuestion } from "@/components/HeroQuestion";
 import { DEMO_DELAY, PRICING } from "@/lib/content";
 
 export default function HomePage() {
@@ -20,50 +21,7 @@ export default function HomePage() {
           </Link>
           <div className="micro">3 minutes · Gratuit · Résultat immédiat</div>
         </div>
-        <div className="hero-art" aria-hidden="true">
-          <div className="art-label">Le parcours que vos demandes méritent</div>
-          <div className="paper">
-            <div className="paper-top">
-              <b>Un projet qui avance.</b>
-              <span className="badge">Exemple de parcours</span>
-            </div>
-            <div className="flow-row">
-              <span className="ico">↳</span>
-              <div>
-                <strong>Une nouvelle demande</strong>
-                <small>Le projet, la zone, le bon timing.</small>
-              </div>
-              <span className="tick">✓</span>
-            </div>
-            <div className="flow-row">
-              <span className="ico">↗</span>
-              <div>
-                <strong>Une réponse, tout de suite</strong>
-                <small>« Votre projet est bien entre nos mains. »</small>
-              </div>
-              <span className="tick">✓</span>
-            </div>
-            <div className="flow-row">
-              <span className="ico">◷</span>
-              <div>
-                <strong>Un devis suivi, pas oublié</strong>
-                <small>La bonne relance, au bon moment.</small>
-              </div>
-              <span className="tick">✓</span>
-            </div>
-            <div className="flow-row">
-              <span className="ico">▤</span>
-              <div>
-                <strong>La prochaine action est claire</strong>
-                <small>Qui rappeler, et pourquoi.</small>
-              </div>
-            </div>
-          </div>
-          <div className="notification">
-            <b>Une conversation qui reprend.</b>« Merci pour votre suivi. On peut faire le point demain ? »
-            <div className="micro">Message illustratif</div>
-          </div>
-        </div>
+        <HeroQuestion />
       </div>
 
       <section className="outcomes" aria-label="Ce que vous obtenez en 3 minutes">

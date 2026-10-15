@@ -12,7 +12,7 @@ import {
   resolve,
   type Answers,
 } from "@/lib/diagnostic";
-import { LEAD_TOKEN_KEY, QUIZ_STATE_KEY, UTM_KEY, readJSON, writeJSON } from "@/lib/client-storage";
+import { LEAD_TOKEN_KEY, QUIZ_STATE_KEY, SKIP_RESUME_KEY, UTM_KEY, readJSON, writeJSON } from "@/lib/client-storage";
 import { toast } from "@/components/Toaster";
 
 type Contact = { name: string; company: string; email: string; website: string; phone: string; context: string; consent: boolean };
@@ -35,13 +35,16 @@ export function Quiz() {
     const saved = readJSON<QuizState | null>(QUIZ_STATE_KEY, null);
     if (saved) setState({ ...initial, ...saved, contact: { ...emptyContact, ...saved.contact }, step: Math.min(saved.step ?? 0, TOTAL - 1) });
     let token: string | null = null;
+    let skipResume = false;
     try {
       token = localStorage.getItem(LEAD_TOKEN_KEY);
+      skipResume = sessionStorage.getItem(SKIP_RESUME_KEY) === "1";
+      sessionStorage.removeItem(SKIP_RESUME_KEY);
     } catch {
       /* stockage indisponible */
     }
     setExistingToken(token);
-    setShowResume(Boolean(token));
+    setShowResume(Boolean(token) && !skipResume);
     setMounted(true);
   }, []);
 

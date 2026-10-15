@@ -66,6 +66,17 @@ p{margin:17px 0;color:var(--muted)}
 .hero .btn{margin-top:16px}
 .hero-art{min-height:462px;background:#eae7f0;border-radius:14px;position:relative;padding:35px 28px;background-image:radial-gradient(#c6c1d5 .8px,transparent .8px);background-size:17px 17px}
 .art-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#716981;margin-bottom:22px}
+.hero-quiz{padding:26px 26px 22px}
+.hero-quiz .art-label{margin-bottom:14px}
+.hero-quiz .quiz-card{padding:24px 24px 18px;box-shadow:0 18px 44px #42375f14}
+.hero-quiz .quiz-card h2{font-size:24px;letter-spacing:-.8px;margin:12px 0 0}
+.hero-quiz .quiz-card p{font-size:12px;margin:8px 0 0}
+.hero-quiz .progress{margin:12px 0 0}
+.hero-quiz .options{gap:8px;margin:16px 0 0}
+.hero-quiz .option{padding:11px 14px;font-size:13px}
+.hero-quiz .micro{margin-top:14px;color:#716981;text-align:center}
+.sticker{position:absolute;top:-14px;right:-12px;transform:rotate(4deg);background:var(--lime);border-radius:9px;padding:10px 16px;font-family:Manrope,sans-serif;font-weight:800;font-size:16px;letter-spacing:-.5px;line-height:1.1;box-shadow:0 10px 24px #43512222}
+.sticker small{display:block;font-family:'DM Sans',sans-serif;font-weight:500;font-size:10px;letter-spacing:0;color:#3f4a1a;margin-top:2px}
 .paper{background:#fffefa;border:1px solid #d6d1df;box-shadow:0 15px 38px #42375f14;border-radius:10px;padding:23px}
 .hero-art .paper{transform:rotate(-3deg);margin-right:28px}
 .paper-top{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:15px;font-size:12px}
@@ -275,5 +286,5 @@ textarea{resize:vertical}
 #toast.show{display:block}
 
 @media(max-width:1100px){.stats{grid-template-columns:repeat(3,1fr)}.board{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:900px){.three{grid-template-columns:1fr}.outcomes{grid-template-columns:1fr;gap:18px}.outcomes ol{grid-template-columns:1fr 1fr}.hero{gap:30px}.hero-art{padding:25px 17px;min-height:420px}.notification{right:-5px;width:230px}.dark-block{gap:30px;padding:35px}.board{grid-template-columns:repeat(2,1fr)}.quiz-layout{gap:30px;grid-template-columns:190px 1fr}nav.site{gap:18px}.result-layout{grid-template-columns:1.4fr 1fr}.meta-band{grid-template-columns:1fr;padding:40px 32px}.mirror{transform:none}.lead-detail{grid-template-columns:1fr}}
+@media(max-width:900px){.hero{grid-template-columns:1fr;padding-bottom:50px}.hero-quiz{max-width:560px}.three{grid-template-columns:1fr}.outcomes{grid-template-columns:1fr;gap:18px}.outcomes ol{grid-template-columns:1fr 1fr}.hero{gap:30px}.hero-art{padding:25px 17px;min-height:420px}.notification{right:-5px;width:230px}.dark-block{gap:30px;padding:35px}.board{grid-template-columns:repeat(2,1fr)}.quiz-layout{gap:30px;grid-template-columns:190px 1fr}nav.site{gap:18px}.result-layout{grid-template-columns:1.4fr 1fr}.meta-band{grid-template-columns:1fr;padding:40px 32px}.mirror{transform:none}.lead-detail{grid-template-columns:1fr}}
 @media(max-width:640px){:root{--gutter:20px}.eyebrow{white-space:normal;text-align:left;border-radius:14px}header.site{height:80px}.logo{font-size:22px}nav.site>a:not(.btn){display:none}.btn.small{font-size:10px;padding:10px}.hero{grid-template-columns:1fr;padding:35px 0 50px;gap:40px}.hero h1{font-size:48px}.hero-art{min-height:420px;margin-right:7px}.hero p,.section-head p,.dark-block>div>p,.cta-band p,.page-head p,.meta-band p,.resume p{font-size:16px}.outcomes ol{grid-template-columns:1fr;gap:16px}.three,.dark-block,.result-layout,.portal-grid{grid-template-columns:1fr}section.block{padding:55px 0}.feature .num{margin-bottom:22px}.dark-block{padding:28px}.quiz-layout{display:block;margin:10px auto 50px}.quiz-aside{display:none}.quiz-card{padding:25px 20px}.quiz-card h2{font-size:27px}.page-head h1{font-size:35px}.panel{padding:23px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.stats{grid-template-columns:repeat(2,1fr)}.admin-top{align-items:start;flex-direction:column}.admin h1{font-size:30px}.board{grid-template-columns:1fr}.column{min-height:120px}.toolbar input{width:100%}footer.site{padding:25px var(--gutter);align-items:start;flex-direction:column}.cta-band h2{font-size:31px}.notification{bottom:17px}.hero-art .paper{margin-right:9px}.meta-band{padding:32px 22px;border-radius:12px}.meta-band h2{font-size:34px}.mirror{grid-template-columns:1fr;padding:18px}.mirror .eq{text-align:center;font-size:28px}.slots{grid-template-columns:repeat(2,1fr)}.booking-embed iframe{height:620px}.kv{grid-template-columns:1fr;gap:2px 0}.kv span{margin-top:8px}.login{margin:40px 20px;padding:26px}}
