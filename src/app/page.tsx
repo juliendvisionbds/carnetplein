@@ -15,7 +15,7 @@ export default function HomePage() {
             <br />
             <em>Et les signatures ?</em>
           </h1>
-          <p>Découvrez où vos projets se perdent, et quoi améliorer pour faire avancer vos devis.</p>
+          <p>Découvrez où vos projets se perdent, et quoi améliorer pour transformer plus de demandes en clients.</p>
           <Link className="btn" href="/diagnostic">
             Trouver mon point de blocage <span>↗</span>
           </Link>
@@ -67,14 +67,24 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="niches">
-        <span>Votre métier. Votre parcours.</span>
-        <span>Cuisinistes</span>
-        <span>Installateurs</span>
-        <span>Rénovation</span>
-        <span>Déménageurs</span>
-        <span>Wedding planners</span>
-      </div>
+      <ul className="reassure" aria-label="Ce que vous pouvez attendre">
+        <li>
+          <b>Sans refaire votre site</b>
+          <span>Une page de demande qui s’ajoute à l’existant.</span>
+        </li>
+        <li>
+          <b>Installé en deux semaines</b>
+          <span>Parcours et messages préparés avec vous.</span>
+        </li>
+        <li>
+          <b>Pas de logiciel à apprendre</b>
+          <span>Une liste claire de qui rappeler, et pourquoi.</span>
+        </li>
+        <li>
+          <b>Sans engagement de durée</b>
+          <span>Démo gratuite, vous décidez après l’avoir vue.</span>
+        </li>
+      </ul>
 
       <section className="block">
         <div className="section-head">

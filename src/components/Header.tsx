@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LEAD_TOKEN_KEY } from "@/lib/client-storage";
+import { LogoMark } from "@/components/LogoMark";
 
 export function Header() {
   const pathname = usePathname();
@@ -23,7 +24,7 @@ export function Header() {
   return (
     <header className="site">
       <Link className="logo" href="/">
-        <span className="mark">▤</span> carnet plein<span className="dot">.</span>
+        <LogoMark /> carnet plein<span className="dot">.</span>
       </Link>
       <nav className="site" aria-label="Navigation principale">
         {isAdmin ? (
