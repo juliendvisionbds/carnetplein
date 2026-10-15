@@ -211,8 +211,8 @@ export default function HomePage() {
         <div className="eyebrow" style={{ justifyContent: "center", marginBottom: 18 }}>
           Votre prochaine signature commence peut-être ici
         </div>
-        <h2>Quel est votre point de blocage ?</h2>
-        <p>Trois minutes pour prendre du recul sur votre parcours commercial.</p>
+        <h2>Où se perdent vos demandes clients ?</h2>
+        <p>Trois minutes pour transformer plus de demandes en projets signés.</p>
         <Link className="btn" href="/diagnostic">
           Faire mon diagnostic gratuit ↗
         </Link>
