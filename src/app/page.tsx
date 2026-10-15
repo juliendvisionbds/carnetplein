@@ -16,34 +16,26 @@ export default function HomePage() {
             <em>Et les signatures ?</em>
           </h1>
           <p>Découvrez où vos projets se perdent, et quoi améliorer pour transformer plus de demandes en clients.</p>
+          <div className="hero-list">
+            <b>Ce que vous obtenez en 3 minutes</b>
+            <ul>
+              <li>
+                <b>Votre point de blocage n°1</b>, là où vos demandes se perdent, d’après vos réponses.
+              </li>
+              <li>
+                <b>Trois actions à faire cette semaine</b>, concrètes, avec vos outils actuels.
+              </li>
+              <li>
+                <b>Votre espace personnel</b>, diagnostic, plan d’action et suite au même endroit.
+              </li>
+              <li>
+                <b>La démo de votre tunnel, à vos couleurs</b>, construite pour votre métier, envoyée {DEMO_DELAY}.
+              </li>
+            </ul>
+          </div>
         </div>
         <HeroQuestion />
       </div>
-
-      <section className="outcomes" aria-label="Ce que vous obtenez en 3 minutes">
-        <div className="outcomes-title">
-          Ce que vous obtenez
-          <span>en 3 minutes</span>
-        </div>
-        <ol>
-          <li>
-            <b>Votre point de blocage n°1</b>
-            <span>Là où vos demandes se perdent, d’après vos réponses.</span>
-          </li>
-          <li>
-            <b>Trois actions à faire cette semaine</b>
-            <span>Concrètes, applicables avec vos outils actuels.</span>
-          </li>
-          <li>
-            <b>Votre espace personnel</b>
-            <span>Diagnostic, plan d’action et suite, au même endroit.</span>
-          </li>
-          <li>
-            <b>La démo de votre tunnel, à vos couleurs</b>
-            <span>Construite pour votre métier, envoyée {DEMO_DELAY}.</span>
-          </li>
-        </ol>
-      </section>
 
       <section className="block">
         <div className="section-head">
