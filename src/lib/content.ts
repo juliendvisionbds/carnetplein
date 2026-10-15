@@ -39,11 +39,3 @@ export const META = {
     "Les bonnes questions, une réponse immédiate, une page à votre nom, un suivi jusqu’au rendez-vous… ce n’est pas notre site. C’est notre produit. Vous venez de traverser, de l’intérieur, le tunnel de vente qu’on va construire pour vos prospects.",
   punchline: "Inception, version devis.",
 };
-
-/** Version courte pour la page d’accueil, avant le diagnostic. */
-export const META_TEASER = {
-  eyebrow: "Un détail qui change tout",
-  title: "Ce diagnostic, c’est déjà la démo.",
-  body:
-    "Vous allez vivre exactement ce que vos clients vivront chez vous : des questions utiles, une réponse qui tombe tout de suite et quelqu’un qui suit jusqu’à la décision. Si ça marche sur vous, ça marchera sur eux.",
-};

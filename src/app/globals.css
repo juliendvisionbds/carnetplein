@@ -99,7 +99,7 @@ section.block{padding:85px 0}
 .step{display:flex;align-items:start;gap:17px;font-size:13px}
 .step b{border:1px solid #62675a;border-radius:50%;width:30px;height:30px;display:grid;place-items:center;flex-shrink:0;color:var(--lime)}
 .step p{font-size:12px;margin:5px 0}
-.faq{max-width:800px;margin:auto}
+.faq{margin:auto}
 .faq h2{margin-bottom:28px}
 details{border-bottom:1px solid var(--line);padding:22px 0}
 summary{cursor:pointer;font-weight:550}

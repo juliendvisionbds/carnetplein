@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { MetaBand } from "@/components/MetaBand";
-import { DEMO_DELAY, META_TEASER, PRICING } from "@/lib/content";
+import { DEMO_DELAY, PRICING } from "@/lib/content";
 
 export default function HomePage() {
   return (
@@ -128,14 +127,6 @@ export default function HomePage() {
           </article>
         </div>
       </section>
-
-      <MetaBand
-        eyebrow={META_TEASER.eyebrow}
-        title={META_TEASER.title}
-        body={META_TEASER.body}
-        left="Vous, dans 3 minutes"
-        right="Vos clients, demain"
-      />
 
       <section className="block">
         <div className="dark-block" id="methode">
