@@ -17,7 +17,6 @@ import { MetaBand } from "@/components/MetaBand";
 import { TrackView } from "@/components/espace/TrackView";
 import { CallModal } from "@/components/espace/CallModal";
 import { Simulator } from "@/components/espace/Simulator";
-import { ClientPreview } from "@/components/espace/ClientPreview";
 import { DemoLink } from "@/components/espace/DemoLink";
 
 export const dynamic = "force-dynamic";
@@ -114,8 +113,6 @@ export default async function EspacePage({ params }: { params: Promise<{ token: 
           </div>
 
           <Simulator {...sim} />
-
-          <ClientPreview token={token} trade={lead.trade} company={company} />
         </div>
 
         <aside>
@@ -175,7 +172,7 @@ export default async function EspacePage({ params }: { params: Promise<{ token: 
                 ? lead.booking?.kind === "request"
                   ? "Votre demande de créneau est envoyée, nous la confirmons par e-mail."
                   : "Votre rendez-vous est confirmé, l’invitation est dans votre agenda."
-                : "On vous montre la démo de votre tunnel de vente, construite pour votre métier, et on la confronte à votre diagnostic. Gratuit, en visio ou par téléphone."}
+                : "On vous montre la démo de votre tunnel de vente, construite pour votre métier, et on la confronte à votre diagnostic."}
             </p>
             <a className="btn lime block" href="#rdv">
               {booked ? "Voir ou modifier mon rendez-vous" : CALL.title} <span>↗</span>

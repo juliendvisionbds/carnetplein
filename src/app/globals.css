@@ -270,8 +270,6 @@ textarea{resize:vertical}
 .slots button.selected{background:var(--soft);border-color:var(--purple)}
 .success{background:#eef3e6;border:1px solid #cfdcb9;color:#3f5a2b;padding:16px 18px;border-radius:9px;font-size:13px}
 .success b{display:block;margin-bottom:4px}
-.preview-box{margin-top:20px}
-.preview-box .options{margin:15px 0}
 .cta-sticky{position:sticky;top:0;z-index:5;background:#f8f7f2e6;backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 0;display:none}
 
 /* Admin */
