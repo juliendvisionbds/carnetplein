@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { SITE } from "@/lib/content";
-import { LOCALES } from "@/i18n/config";
+import { LOCALES, TRADE_KEYS } from "@/i18n/config";
 import { pathFor, type PageRef } from "@/i18n/metadata";
 
 type Entry = { ref: PageRef; changeFrequency: "monthly" | "yearly"; priority: number };
@@ -8,6 +8,8 @@ type Entry = { ref: PageRef; changeFrequency: "monthly" | "yearly"; priority: nu
 const PAGES: Entry[] = [
   { ref: { path: "/" }, changeFrequency: "monthly", priority: 1 },
   { ref: { path: "/diagnostic" }, changeFrequency: "monthly", priority: 0.9 },
+  { ref: { page: "trades" }, changeFrequency: "monthly", priority: 0.7 },
+  ...TRADE_KEYS.map((trade): Entry => ({ ref: { trade }, changeFrequency: "monthly", priority: 0.8 })),
   { ref: { page: "privacy" }, changeFrequency: "yearly", priority: 0.2 },
   { ref: { page: "legal" }, changeFrequency: "yearly", priority: 0.2 },
 ];

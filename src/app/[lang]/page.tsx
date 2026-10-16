@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { HeroQuestion, type HeroQuestionData } from "@/components/HeroQuestion";
+import { HeroQuestion } from "@/components/HeroQuestion";
+import { TradeLinks } from "@/components/TradePages";
 import { getDictionary } from "@/i18n";
 import { fmt, hasLocale, localePath, pagePath } from "@/i18n/config";
 import { homeStructuredData, jsonLdScript, pageMetadata } from "@/i18n/metadata";
-import { optionLabel, questions, resolveOpts } from "@/lib/diagnostic";
+import { firstQuestionCard } from "@/lib/diagnostic";
 
 type Params = Promise<{ lang: string }>;
 
@@ -24,15 +25,6 @@ export default async function HomePage({ params }: { params: Params }) {
   const d = dict.diagnostic;
   const diagnosticHref = localePath(lang, "/diagnostic");
 
-  const first = questions[0];
-  const question: HeroQuestionData = {
-    section: d.sections[first.section],
-    title: d.questions[first.id].title,
-    help: d.questions[first.id].help,
-    options: resolveOpts(first, {}).map((key) => ({ key, label: optionLabel(d, first.id, key) })),
-    total: questions.length + 1,
-  };
-
   return (
     <div className="wrap">
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(homeStructuredData(lang))} />
@@ -48,7 +40,7 @@ export default async function HomePage({ params }: { params: Params }) {
           </h1>
           <p>{t.intro}</p>
         </div>
-        <HeroQuestion lang={lang} t={dict.hero} question={question} />
+        <HeroQuestion lang={lang} t={dict.hero} question={firstQuestionCard(d)} />
       </div>
 
       <section className="outcomes" aria-label={t.outcomesAria}>
@@ -115,6 +107,15 @@ export default async function HomePage({ params }: { params: Params }) {
             ))}
           </div>
         </div>
+      </section>
+
+      <section className="block">
+        <div className="section-head">
+          <div className="eyebrow">{t.tradesEyebrow}</div>
+          <h2>{t.tradesTitle}</h2>
+          <p>{t.tradesIntro}</p>
+        </div>
+        <TradeLinks lang={lang} t={dict.trades} />
       </section>
 
       <section className="block faq">

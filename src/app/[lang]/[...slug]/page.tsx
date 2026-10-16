@@ -1,33 +1,46 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { TradePage, TradesIndex } from "@/components/TradePages";
 import { EDITOR } from "@/lib/content";
 import { getDictionary } from "@/i18n";
-import { LOCALES, LOCALIZED_SLUGS, fmt, hasLocale, pageFromSlug, pagePath, type Locale, type LocalizedPage } from "@/i18n/config";
+import { LOCALES, LOCALIZED_SLUGS, TRADE_KEYS, TRADE_SLUGS, fmt, hasLocale, pageFromSlug, pagePath, tradeFromSlug, type Locale, type LocalizedPage, type TradeKey } from "@/i18n/config";
 import { pageMetadata } from "@/i18n/metadata";
 
 /**
- * Pages à segment traduit (/privacy ↔ /fr/confidentialite, /legal-notice ↔ /fr/mentions-legales).
+ * Pages à segment traduit (/privacy ↔ /fr/confidentialite, /legal-notice ↔ /fr/mentions-legales,
+ * /trades ↔ /fr/metiers) et pages métiers rangées sous /trades (/trades/kitchen-installers ↔ /fr/metiers/cuisinistes).
  * Toute autre adresse sous une langue connue aboutit ici et renvoie une vraie 404.
  */
 
 type Params = Promise<{ lang: string; slug: string[] }>;
 
 export function generateStaticParams() {
-  return LOCALES.flatMap((lang) => (Object.keys(LOCALIZED_SLUGS) as LocalizedPage[]).map((page) => ({ lang, slug: [LOCALIZED_SLUGS[page][lang]] })));
+  return LOCALES.flatMap((lang) => [
+    ...(Object.keys(LOCALIZED_SLUGS) as LocalizedPage[]).map((page) => ({ lang, slug: [LOCALIZED_SLUGS[page][lang]] })),
+    ...TRADE_KEYS.map((trade) => ({ lang, slug: [LOCALIZED_SLUGS.trades[lang], TRADE_SLUGS[trade][lang]] })),
+  ]);
 }
 
-async function resolvePage(params: Params): Promise<{ lang: Locale; page: LocalizedPage } | null> {
+async function resolvePage(params: Params): Promise<{ lang: Locale; page: LocalizedPage; trade?: TradeKey } | null> {
   const { lang, slug } = await params;
-  if (!hasLocale(lang) || slug.length !== 1) return null;
+  if (!hasLocale(lang) || slug.length > 2) return null;
   const page = pageFromSlug(lang, slug[0]);
-  return page ? { lang, page } : null;
+  if (!page) return null;
+  if (slug.length === 1) return { lang, page };
+  const trade = page === "trades" ? tradeFromSlug(lang, slug[1]) : null;
+  return trade ? { lang, page, trade } : null;
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const r = await resolvePage(params);
   if (!r) return {};
   const t = getDictionary(r.lang);
+  if (r.trade) {
+    const p = t.trades.pages[r.trade];
+    return pageMetadata(r.lang, { trade: r.trade }, { title: p.title, description: p.description });
+  }
+  if (r.page === "trades") return pageMetadata(r.lang, { page: r.page }, { title: t.trades.index.title, description: t.trades.index.description });
   const s = r.page === "privacy" ? t.privacy : t.legal;
   return pageMetadata(r.lang, { page: r.page }, { title: s.title, description: `${s.h1} ${s.intro}` });
 }
@@ -37,6 +50,9 @@ export default async function LocalizedPage({ params }: { params: Params }) {
   if (!r) notFound();
   const { lang, page } = r;
   const dict = getDictionary(lang);
+
+  if (r.trade) return <TradePage lang={lang} dict={dict} trade={r.trade} />;
+  if (page === "trades") return <TradesIndex lang={lang} dict={dict} />;
 
   if (page === "privacy") {
     const t = dict.privacy;

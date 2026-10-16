@@ -31,6 +31,7 @@ export function leadLocale(value: unknown): Locale {
 export const LOCALIZED_SLUGS = {
   privacy: { en: "privacy", fr: "confidentialite" },
   legal: { en: "legal-notice", fr: "mentions-legales" },
+  trades: { en: "trades", fr: "metiers" },
 } as const;
 export type LocalizedPage = keyof typeof LOCALIZED_SLUGS;
 
@@ -39,6 +40,26 @@ export function pageFromSlug(lang: Locale, slug: string): LocalizedPage | null {
     if (LOCALIZED_SLUGS[key][lang] === slug) return key;
   }
   return null;
+}
+
+/**
+ * Pages métiers, rangées sous la page « trades » : /trades/kitchen-installers ↔ /fr/metiers/cuisinistes.
+ * Les textes vivent dans la section « trades » des dictionnaires, sous la même clé.
+ * L’ordre est celui des listes (accueil, page des métiers, liens entre métiers).
+ */
+export const TRADE_SLUGS = {
+  kitchens: { en: "kitchen-installers", fr: "cuisinistes" },
+  renovation: { en: "renovation-contractors", fr: "renovation" },
+  heating: { en: "hvac-contractors", fr: "chauffagistes" },
+  electrical: { en: "electricians", fr: "electriciens" },
+  solar: { en: "solar-installers", fr: "installateurs-photovoltaiques" },
+  architects: { en: "architects", fr: "architectes" },
+} as const;
+export type TradeKey = keyof typeof TRADE_SLUGS;
+export const TRADE_KEYS = Object.keys(TRADE_SLUGS) as TradeKey[];
+
+export function tradeFromSlug(lang: Locale, slug: string): TradeKey | null {
+  return TRADE_KEYS.find((key) => TRADE_SLUGS[key][lang] === slug) ?? null;
 }
 
 /** Préfixe une adresse interne pour la langue donnée : localePath("fr", "/diagnostic") → "/fr/diagnostic". */
@@ -50,6 +71,10 @@ export function localePath(lang: Locale, path = "/"): string {
 
 export function pagePath(lang: Locale, page: LocalizedPage): string {
   return localePath(lang, `/${LOCALIZED_SLUGS[page][lang]}`);
+}
+
+export function tradePath(lang: Locale, trade: TradeKey): string {
+  return localePath(lang, `/${LOCALIZED_SLUGS.trades[lang]}/${TRADE_SLUGS[trade][lang]}`);
 }
 
 /** Sépare le préfixe de langue du reste de l’adresse : "/fr/diagnostic" → { lang: "fr", path: "/diagnostic" }. Accepte aussi "/en/…" (adresse interne). */
@@ -67,6 +92,8 @@ export function switchLocalePath(pathname: string, target: Locale): string {
   const [, first = "", ...rest] = path.split("/");
   const page = pageFromSlug(lang, first);
   if (page && rest.length === 0) return pagePath(target, page);
+  const trade = page === "trades" && rest.length === 1 ? tradeFromSlug(lang, rest[0]) : null;
+  if (trade) return tradePath(target, trade);
   return localePath(target, path);
 }
 

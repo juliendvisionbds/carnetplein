@@ -90,6 +90,18 @@ export function optionLabel(t: DiagnosticDictionary, id: QuestionId, key: string
   return options[key] ?? key;
 }
 
+/** La première question, prête à afficher dans le hero (accueil, pages métiers) : un clic lance le diagnostic. */
+export function firstQuestionCard(t: DiagnosticDictionary) {
+  const first = questions[0];
+  return {
+    section: t.sections[first.section],
+    title: t.questions[first.id].title,
+    help: t.questions[first.id].help,
+    options: resolveOpts(first, {}).map((key) => ({ key, label: optionLabel(t, first.id, key) })),
+    total: questions.length + 1,
+  };
+}
+
 export function isAnswered(q: Question, a: Answers): boolean {
   const v = a[q.id];
   const allowed = resolveOpts(q, a);

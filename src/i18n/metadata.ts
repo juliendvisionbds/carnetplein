@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
 import { PRICE, SITE } from "@/lib/content";
 import { getDictionary } from "@/i18n";
-import { OG_LOCALE, fmt, localePath, otherLocale, pagePath, type Locale, type LocalizedPage } from "@/i18n/config";
+import { OG_LOCALE, TRADE_KEYS, fmt, localePath, otherLocale, pagePath, tradePath, type Locale, type LocalizedPage, type TradeKey } from "@/i18n/config";
 
-/** Une page publique : adresse fixe (identique dans les deux langues) ou page à segment traduit. */
-export type PageRef = { path: string } | { page: LocalizedPage };
+/** Une page publique : adresse fixe (identique dans les deux langues), page à segment traduit ou page métier. */
+export type PageRef = { path: string } | { page: LocalizedPage } | { trade: TradeKey };
 
 export function pathFor(lang: Locale, ref: PageRef): string {
+  if ("trade" in ref) return tradePath(lang, ref.trade);
   return "page" in ref ? pagePath(lang, ref.page) : localePath(lang, ref.path);
+}
+
+/** Adresse absolue, de même forme que la balise canonique : la racine sans barre oblique finale. */
+export function absoluteUrl(path: string): string {
+  return path === "/" ? SITE.url : `${SITE.url}${path}`;
 }
 
 type PageText = { title: string; description: string; absoluteTitle?: boolean };
@@ -35,6 +41,9 @@ export function pageMetadata(lang: Locale, ref: PageRef, { title, description, a
       type: "website",
       locale: OG_LOCALE[lang],
       alternateLocale: [OG_LOCALE[otherLocale(lang)]],
+      // L’image générée par app/[lang]/opengraph-image.tsx : sans cela, ce bloc openGraph remplace
+      // celui hérité du segment [lang] et les pages imbriquées perdent leur image de partage.
+      images: [{ url: `/${lang}/opengraph-image/default`, width: 1200, height: 630, alt: getDictionary(lang).meta.title }],
     },
   };
 }
@@ -90,6 +99,65 @@ export function homeStructuredData(lang: Locale) {
           })),
           { "@type": "Question", name: t.home.faqPrivacyQ, acceptedAnswer: answer(`${t.home.faqPrivacyA} ${t.home.faqPrivacyLink} (${abs(pagePath(lang, "privacy"))}).`) },
         ],
+      },
+    ],
+  };
+}
+
+/** Fil d’Ariane schema.org : accueil, puis chaque niveau jusqu’à la page courante. */
+function breadcrumbList(lang: Locale, items: { name: string; path: string }[]) {
+  const t = getDictionary(lang);
+  const trail = [{ name: t.trades.crumbHome, path: localePath(lang, "/") }, ...items];
+  return {
+    "@type": "BreadcrumbList",
+    itemListElement: trail.map(({ name, path }, i) => ({ "@type": "ListItem", position: i + 1, name, item: absoluteUrl(path) })),
+  };
+}
+
+/** Données structurées de la page des métiers : fil d’Ariane et liste des pages métiers. */
+export function tradesIndexStructuredData(lang: Locale) {
+  const t = getDictionary(lang).trades;
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbList(lang, [{ name: t.index.crumb, path: pagePath(lang, "trades") }]),
+      {
+        "@type": "ItemList",
+        itemListElement: TRADE_KEYS.map((trade, i) => ({ "@type": "ListItem", position: i + 1, name: t.pages[trade].name, url: absoluteUrl(tradePath(lang, trade)) })),
+      },
+    ],
+  };
+}
+
+/** Données structurées d’une page métier : fil d’Ariane, le service pour ce métier et la FAQ affichée. */
+export function tradeStructuredData(lang: Locale, trade: TradeKey) {
+  const dict = getDictionary(lang);
+  const t = dict.trades;
+  const p = t.pages[trade];
+  const url = absoluteUrl(tradePath(lang, trade));
+  const priceVars = { setup: dict.pricing.setup, monthly: dict.pricing.monthly, footnote: dict.pricing.footnote.toLowerCase() };
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbList(lang, [
+        { name: t.index.crumb, path: pagePath(lang, "trades") },
+        { name: p.name, path: tradePath(lang, trade) },
+      ]),
+      {
+        "@type": "Service",
+        "@id": `${url}#service`,
+        name: p.title,
+        serviceType: dict.meta.serviceType,
+        description: p.description,
+        url,
+        provider: { "@id": `${SITE.url}/#organization` },
+        audience: { "@type": "BusinessAudience", name: p.name },
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${url}#faq`,
+        inLanguage: lang,
+        mainEntity: [...p.faq, t.faqPrice].map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: fmt(a, priceVars) } })),
       },
     ],
   };

@@ -16,6 +16,10 @@ export function Footer({ lang, t, tagline, switchLabel }: Props) {
       <span>{tagline}</span>
       <span>
         © {new Date().getFullYear()} {SITE.name} ·{" "}
+        <Link className="small" href={pagePath(lang, "trades")}>
+          {t.trades}
+        </Link>{" "}
+        ·{" "}
         <Link className="small" href={pagePath(lang, "legal")}>
           {t.legal}
         </Link>{" "}

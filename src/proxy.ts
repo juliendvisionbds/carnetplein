@@ -1,12 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { DEFAULT_LOCALE, LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, hasLocale, negotiateLocale } from "@/i18n/config";
+import { DEFAULT_LOCALE, LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, hasLocale, negotiateLocale, switchLocalePath } from "@/i18n/config";
 
 /**
  * Routage des langues.
  *  - L’anglais vit à la racine (/), le français sous /fr.
- *  - Sans préfixe, un visiteur dont le navigateur préfère le français est envoyé vers /fr
- *    (redirection temporaire 307, comme le recommande Google pour les redirections linguistiques),
- *    et son choix est mémorisé dans un cookie.
+ *  - Sans préfixe, un visiteur dont le navigateur préfère le français est envoyé vers la même page
+ *    sous /fr, segments traduits compris (/privacy → /fr/confidentialite), par redirection temporaire
+ *    307 comme le recommande Google pour les redirections linguistiques ; son choix est mémorisé dans un cookie.
  *  - Un changement de langue explicite (lien EN/FR) pose le cookie avant de naviguer : il est
  *    toujours respecté. Sans cookie et sans préférence française, la page anglaise est servie
  *    par réécriture interne vers app/[lang] (lang = "en"), l’adresse restant sans préfixe.
@@ -28,7 +28,7 @@ export function proxy(request: NextRequest) {
   if (preferred === DEFAULT_LOCALE) return serveDefault(request);
 
   const url = request.nextUrl.clone();
-  url.pathname = `/${preferred}${pathname === "/" ? "" : pathname}`;
+  url.pathname = switchLocalePath(pathname, preferred);
   const response = NextResponse.redirect(url, 307);
   if (!cookie) {
     response.cookies.set(LOCALE_COOKIE, preferred, { path: "/", maxAge: LOCALE_COOKIE_MAX_AGE, sameSite: "lax" });
