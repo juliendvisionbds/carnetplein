@@ -1,27 +1,17 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { SITE } from "@/lib/content";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Toaster } from "@/components/Toaster";
 import { UtmCapture } from "@/components/UtmCapture";
+import { getDictionary } from "@/i18n";
+import type { Locale } from "@/i18n/config";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE.url),
-  title: { default: `${SITE.name} — Faites avancer vos devis.`, template: `%s · ${SITE.name}` },
-  description: SITE.description,
-  openGraph: {
-    title: `${SITE.name} — Faites avancer vos devis.`,
-    description: SITE.description,
-    type: "website",
-    locale: "fr_FR",
-    siteName: SITE.name,
-  },
-};
+type Props = { lang: Locale; variant?: "public" | "admin"; children: React.ReactNode };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+/** Squelette HTML commun aux deux layouts racines (site public par langue, back-office). */
+export function Shell({ lang, variant = "public", children }: Props) {
+  const t = getDictionary(lang);
   return (
-    <html lang="fr" data-scroll-behavior="smooth">
+    <html lang={lang} data-scroll-behavior="smooth">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -31,9 +21,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <Header />
+        <Header lang={lang} t={t.nav} variant={variant} />
         <main id="app">{children}</main>
-        <Footer />
+        <Footer lang={lang} t={t.footer} tagline={t.meta.tagline} switchLabel={t.nav.switchLabel} />
         <Toaster />
         <UtmCapture />
       </body>

@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { getStore, type Lead } from "@/lib/store";
-import { STAGES, STAGE_BOOKED, STAGE_DEMO_SENT, STAGE_LOST, STAGE_NEW, STAGE_PREP, STAGE_WON, profiles } from "@/lib/diagnostic";
+import { STAGES, STAGE_BOOKED, STAGE_DEMO_SENT, STAGE_LOST, STAGE_NEW, STAGE_PREP, STAGE_WON } from "@/lib/diagnostic";
+import { getDictionary } from "@/i18n";
+import { LOCALE_NAME, leadLocale } from "@/i18n/config";
+import { SITE } from "@/lib/content";
 import { isEmailConfigured } from "@/lib/email";
 import { isSupabaseConfigured } from "@/lib/store";
 import { logout, requireAdmin } from "./actions";
@@ -8,6 +11,7 @@ import { logout, requireAdmin } from "./actions";
 export const dynamic = "force-dynamic";
 
 const fmtDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", timeZone: "Europe/Paris" });
+const profiles = getDictionary("fr").diagnostic.profiles;
 
 function daysSince(iso: string): number {
   return Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
@@ -49,7 +53,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     <div className="admin">
       <div className="admin-top">
         <div>
-          <div className="eyebrow">L’atelier Carnet Plein</div>
+          <div className="eyebrow">L’atelier {SITE.name}</div>
           <h1 style={{ marginTop: 13 }}>
             Les bonnes conversations,
             <br />
@@ -122,6 +126,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
                   <h4>{l.company || l.name}</h4>
                   <p>
                     {l.trade ?? new URL(l.website).hostname.replace(/^www\./, "")}
+                    {leadLocale(l.locale) !== "fr" ? ` · ${LOCALE_NAME[leadLocale(l.locale)]}` : ""}
                     {l.booking && stage === STAGE_BOOKED ? ` · RDV ${l.booking.kind === "request" ? "demandé" : "confirmé"}` : ""}
                   </p>
                   <div className="lead-bottom">

@@ -2,25 +2,22 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import {
-  SECTIONS,
-  isAnswered,
-  questions,
-  resolve,
-  type Answers,
-} from "@/lib/diagnostic";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { MAX_SOURCES, UNKNOWN, isAnswered, optionLabel, questions, questionText, resolveOpts, type Answers } from "@/lib/diagnostic";
 import { LEAD_TOKEN_KEY, QUIZ_STATE_KEY, SKIP_RESUME_KEY, UTM_KEY, readJSON, writeJSON } from "@/lib/client-storage";
 import { toast } from "@/components/Toaster";
+import { fmt, localePath, type Locale } from "@/i18n/config";
+import type { Dictionary, DiagnosticDictionary } from "@/i18n";
 
 type Contact = { name: string; email: string; website: string; consent: boolean };
 type QuizState = { answers: Answers; step: number; contact: Contact };
+type Props = { lang: Locale; t: Dictionary["quiz"]; d: DiagnosticDictionary };
 
 const emptyContact: Contact = { name: "", email: "", website: "", consent: false };
 const initial: QuizState = { answers: {}, step: 0, contact: emptyContact };
-const TOTAL = questions.length + 1; // 10 questions + coordonnées
+const TOTAL = questions.length + 1; // 9 questions + coordonnées
 
-export function Quiz() {
+export function Quiz({ lang, t, d }: Props) {
   const router = useRouter();
   const [state, setState] = useState<QuizState>(initial);
   const [mounted, setMounted] = useState(false);
@@ -28,21 +25,25 @@ export function Quiz() {
   const [showResume, setShowResume] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Le drapeau « ne pas proposer la reprise » est consommé une seule fois, même si l’effet
+  // s’exécute deux fois (mode strict de React en développement).
+  const skipResumeRef = useRef<boolean | null>(null);
 
   useEffect(() => {
     const saved = readJSON<QuizState | null>(QUIZ_STATE_KEY, null);
     if (saved) setState({ ...initial, ...saved, contact: { ...emptyContact, ...saved.contact }, step: Math.min(saved.step ?? 0, TOTAL - 1) });
     let token: string | null = null;
-    let skipResume = false;
     try {
       token = localStorage.getItem(LEAD_TOKEN_KEY);
-      skipResume = sessionStorage.getItem(SKIP_RESUME_KEY) === "1";
-      sessionStorage.removeItem(SKIP_RESUME_KEY);
+      if (skipResumeRef.current === null) {
+        skipResumeRef.current = sessionStorage.getItem(SKIP_RESUME_KEY) === "1";
+        sessionStorage.removeItem(SKIP_RESUME_KEY);
+      }
     } catch {
       /* stockage indisponible */
     }
     setExistingToken(token);
-    setShowResume(Boolean(token) && !skipResume);
+    setShowResume(Boolean(token) && !skipResumeRef.current);
     setMounted(true);
   }, []);
 
@@ -57,9 +58,10 @@ export function Quiz() {
   const step = state.step;
   const isContactStep = step === questions.length;
   const q = isContactStep ? null : questions[step];
-  const opts = useMemo(() => (q ? resolve(q.opts, state.answers) : []), [q, state.answers]);
+  const opts = useMemo(() => (q ? resolveOpts(q, state.answers) : []), [q, state.answers]);
   const section = isContactStep ? 3 : q!.section;
   const canContinue = isContactStep ? true : isAnswered(q!, state.answers);
+  const text = q ? questionText(q, state.answers, d) : null;
 
   function choose(value: string) {
     if (!q) return;
@@ -68,11 +70,11 @@ export function Quiz() {
       if (q.type === "multi") {
         let values = Array.isArray(answers.source) ? [...answers.source] : [];
         if (values.includes(value)) values = values.filter((v) => v !== value);
-        else if (value === "Je ne sais pas") values = [value];
+        else if (value === UNKNOWN) values = [value];
         else {
-          values = values.filter((v) => v !== "Je ne sais pas");
-          if (values.length === 3) {
-            toast("Vous pouvez sélectionner jusqu’à 3 sources.");
+          values = values.filter((v) => v !== UNKNOWN);
+          if (values.length === MAX_SOURCES) {
+            toast(fmt(t.maxSources, { max: MAX_SOURCES }));
             return {};
           }
           values.push(value);
@@ -94,7 +96,7 @@ export function Quiz() {
 
   function previous() {
     if (step > 0) update({ step: step - 1 });
-    else router.push("/");
+    else router.push(localePath(lang, "/"));
   }
 
   function restart() {
@@ -107,7 +109,7 @@ export function Quiz() {
     setError(null);
     const c = state.contact;
     if (!c.consent) {
-      setError("Votre accord est nécessaire pour vous envoyer le diagnostic.");
+      setError(t.consentRequired);
       return;
     }
     setSubmitting(true);
@@ -117,6 +119,7 @@ export function Quiz() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          locale: lang,
           answers: state.answers,
           contact: c,
           utm: readJSON<Record<string, string> | null>(UTM_KEY, null) ?? undefined,
@@ -124,16 +127,16 @@ export function Quiz() {
         }),
       });
       const data = (await res.json()) as { token?: string; error?: string };
-      if (!res.ok || !data.token) throw new Error(data.error || "Une erreur est survenue.");
+      if (!res.ok || !data.token) throw new Error(data.error || t.genericError);
       try {
         localStorage.setItem(LEAD_TOKEN_KEY, data.token);
         localStorage.removeItem(QUIZ_STATE_KEY);
       } catch {
         /* stockage indisponible : le lien reste dans l’e-mail */
       }
-      router.push(`/espace/${data.token}`);
+      router.push(localePath(lang, `/espace/${data.token}`));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue.");
+      setError(err instanceof Error ? err.message : t.genericError);
       setSubmitting(false);
     }
   }
@@ -143,7 +146,7 @@ export function Quiz() {
       <div className="quiz-layout">
         <aside className="quiz-aside" />
         <section className="quiz-card" aria-busy="true">
-          <p>Chargement de votre diagnostic…</p>
+          <p>{t.loading}</p>
         </section>
       </div>
     );
@@ -153,16 +156,16 @@ export function Quiz() {
     return (
       <div className="resume">
         <div className="eyebrow" style={{ justifyContent: "center" }}>
-          Vous êtes déjà passé par ici
+          {t.resumeEyebrow}
         </div>
-        <h2 style={{ margin: "16px 0" }}>Votre diagnostic vous attend.</h2>
-        <p>Retrouvez votre priorité, vos trois actions et la suite dans votre espace. Ou refaites le diagnostic si votre situation a changé.</p>
+        <h2 style={{ margin: "16px 0" }}>{t.resumeTitle}</h2>
+        <p>{t.resumeText}</p>
         <div className="actions">
-          <Link className="btn" href={`/espace/${existingToken}`}>
-            Ouvrir mon espace ↗
+          <Link className="btn" href={localePath(lang, `/espace/${existingToken}`)}>
+            {t.openSpace}
           </Link>
           <button className="btn outline" onClick={restart}>
-            Refaire le diagnostic
+            {t.redo}
           </button>
         </div>
       </div>
@@ -172,14 +175,14 @@ export function Quiz() {
   return (
     <div className="quiz-layout">
       <aside className="quiz-aside">
-        <div className="eyebrow">Votre diagnostic</div>
+        <div className="eyebrow">{t.asideEyebrow}</div>
         <h3>
-          On commence
+          {t.asideTitleA}
           <br />
-          par vous écouter.
+          {t.asideTitleB}
         </h3>
-        <p>Pas de mauvaise réponse. Le but est de comprendre votre quotidien.</p>
-        {SECTIONS.map((label, n) => (
+        <p>{t.asideText}</p>
+        {d.sections.map((label, n) => (
           <div key={label} className={`quiz-step ${section === n ? "active" : section > n ? "done" : ""}`}>
             <span>{section > n ? "✓" : `0${n + 1}`}</span>
             {label}
@@ -187,13 +190,13 @@ export function Quiz() {
         ))}
         <div className="info-badge" role="note">
           <i aria-hidden="true">i</i>
-          <span>Vos réponses sont enregistrées au fil de l’eau : vous pouvez revenir plus tard.</span>
+          <span>{t.savedNote}</span>
         </div>
       </aside>
 
       <section className="quiz-card">
         <div className="quiz-meta">
-          <span>{SECTIONS[section]}</span>
+          <span>{d.sections[section]}</span>
           <span>
             {step + 1} / {TOTAL}
           </span>
@@ -202,10 +205,10 @@ export function Quiz() {
           <div style={{ width: `${((step + 1) / TOTAL) * 100}%` }} />
         </div>
 
-        {q ? (
+        {q && text ? (
           <>
-            <h2>{resolve(q.title, state.answers)}</h2>
-            <p>{resolve(q.help, state.answers)}</p>
+            <h2>{text.title}</h2>
+            <p>{text.help}</p>
 
             {q.id === "response" && (
               <>
@@ -215,47 +218,44 @@ export function Quiz() {
                     checked={Boolean(state.answers.autoConfirm)}
                     onChange={(e) => update((s) => ({ answers: { ...s.answers, autoConfirm: e.target.checked } }))}
                   />
-                  <span>Un e-mail de confirmation automatique est envoyé juste après la demande.</span>
+                  <span>{t.autoConfirm}</span>
                 </label>
-                <p className="micro">Et pour votre réponse personnelle :</p>
+                <p className="micro">{t.autoConfirmThen}</p>
               </>
             )}
 
-                            <div className={`options ${q.type === "multi" ? "multi-options" : ""}`} role="group">
-                  {opts.map((x) => {
-                    const selected = q.type === "multi" ? (state.answers.source ?? []).includes(x) : state.answers[q.id] === x;
-                    return (
-                      <button key={x} type="button" className={`option ${selected ? "selected" : ""}`} aria-pressed={selected} onClick={() => choose(x)}>
-                        {x}
-                      </button>
-                    );
-                  })}
-                </div>
-                {q.type === "multi" && (
-                  <div className="micro" aria-live="polite">
-                    {(state.answers.source ?? []).length} / 3 sources sélectionnées
-                  </div>
-                )}
+            <div className={`options ${q.type === "multi" ? "multi-options" : ""}`} role="group">
+              {opts.map((key) => {
+                const selected = q.type === "multi" ? (state.answers.source ?? []).includes(key) : state.answers[q.id] === key;
+                return (
+                  <button key={key} type="button" className={`option ${selected ? "selected" : ""}`} aria-pressed={selected} onClick={() => choose(key)}>
+                    {optionLabel(d, q.id, key)}
+                  </button>
+                );
+              })}
+            </div>
+            {q.type === "multi" && (
+              <div className="micro" aria-live="polite">
+                {fmt(t.sourcesSelected, { n: (state.answers.source ?? []).length, max: MAX_SOURCES })}
+              </div>
+            )}
 
             <div className="quiz-actions">
               <button type="button" className="text-btn" onClick={previous}>
-                ← {step ? "Précédent" : "Accueil"}
+                ← {step ? t.back : t.home}
               </button>
               <button type="button" className="btn" onClick={next} disabled={!canContinue}>
-                Continuer →
+                {t.next}
               </button>
             </div>
           </>
         ) : (
           <form onSubmit={submit} noValidate={false}>
-            <h2>Dernière étape : où vous envoyer votre diagnostic ?</h2>
-            <p>
-              Votre diagnostic est prêt. Indiquez où l’envoyer : vous y accédez tout de suite, et vos réponses servent ensuite à construire
-              la démo de votre tunnel de vente.
-            </p>
+            <h2>{t.contactTitle}</h2>
+            <p>{t.contactIntro}</p>
             <div className="form-grid">
               <label className="field">
-                Votre prénom et nom *
+                {t.name}
                 <input
                   name="name"
                   required
@@ -266,7 +266,7 @@ export function Quiz() {
                 />
               </label>
               <label className="field">
-                Votre e-mail professionnel *
+                {t.email}
                 <input
                   name="email"
                   type="email"
@@ -277,13 +277,13 @@ export function Quiz() {
                 />
               </label>
               <label className="field full">
-                Le site ou la page de votre entreprise *
+                {t.website}
                 <input
                   name="website"
                   required
                   inputMode="url"
                   autoComplete="url"
-                  placeholder="www.votre-entreprise.fr, ou votre page Google / Instagram"
+                  placeholder={t.websitePlaceholder}
                   value={state.contact.website}
                   onChange={(e) => update((s) => ({ contact: { ...s.contact, website: e.target.value } }))}
                 />
@@ -297,7 +297,7 @@ export function Quiz() {
                 checked={state.contact.consent}
                 onChange={(e) => update((s) => ({ contact: { ...s.contact, consent: e.target.checked } }))}
               />
-              <span>J’accepte de recevoir mon diagnostic, la démo de mon tunnel de vente et d’être recontacté à ce sujet.</span>
+              <span>{t.consent}</span>
             </label>
             {error && (
               <p className="error" role="alert">
@@ -306,18 +306,17 @@ export function Quiz() {
             )}
             <div className="quiz-actions">
               <button type="button" className="text-btn" onClick={previous} disabled={submitting}>
-                ← Précédent
+                ← {t.back}
               </button>
               <button type="submit" className="btn lime" disabled={submitting}>
-                {submitting ? "Analyse de vos réponses…" : "Voir mon diagnostic →"}
+                {submitting ? t.submitting : t.submit}
               </button>
             </div>
             <div className="contact-intro">
               <span aria-hidden="true">✦</span>
               <div>
-                <b>Et ensuite ?</b>
-                Vous accédez immédiatement à votre diagnostic. Pendant ce temps, on construit la démo complète de votre tunnel de vente, à vos
-                couleurs, et on vous l’envoie.
+                <b>{t.thenTitle}</b>
+                {t.thenText}
               </div>
             </div>
           </form>

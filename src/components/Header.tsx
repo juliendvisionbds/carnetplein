@@ -5,8 +5,13 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LEAD_TOKEN_KEY } from "@/lib/client-storage";
 import { LogoMark } from "@/components/LogoMark";
+import { LangSwitch } from "@/components/LangSwitch";
+import { localePath, stripLocale, type Locale } from "@/i18n/config";
+import type { Dictionary } from "@/i18n";
 
-export function Header() {
+type Props = { lang: Locale; t: Dictionary["nav"]; variant?: "public" | "admin" };
+
+export function Header({ lang, t, variant = "public" }: Props) {
   const pathname = usePathname();
   const [token, setToken] = useState<string | null>(null);
 
@@ -18,48 +23,57 @@ export function Header() {
     }
   }, [pathname]);
 
-  const isAdmin = pathname.startsWith("/admin");
-  const inEspace = pathname.startsWith("/espace");
-  const inQuiz = pathname.startsWith("/diagnostic");
-  const espaceToken = inEspace ? pathname.split("/")[2] : null;
+  const { path } = stripLocale(pathname);
+  const home = localePath(lang, "/");
+  const isAdmin = variant === "admin";
+  const inEspace = path.startsWith("/espace");
+  const inQuiz = path.startsWith("/diagnostic");
+  const espaceToken = inEspace ? path.split("/")[2] : null;
+  const switcher = <LangSwitch lang={lang} label={t.switchLabel} text={t.switchShort} />;
 
   return (
     <header className="site">
-      <Link className="logo" href="/">
-        <LogoMark /> carnet plein<span className="dot">.</span>
+      <Link className="logo" href={isAdmin ? "/admin" : home}>
+        <LogoMark /> vision<span className="dot">.</span>
       </Link>
-      <nav className="site" aria-label="Navigation principale">
+      <nav className="site" aria-label={t.mainNav}>
         {isAdmin ? (
           <>
-            <Link href="/admin">Pilotage</Link>
-            <Link href="/">Site public ↗</Link>
+            <Link href="/admin">{t.adminDashboard}</Link>
+            <Link href="/">{t.adminPublicSite}</Link>
           </>
         ) : inQuiz ? (
-          <span className="nav-note">
-            <i aria-hidden="true">✓</i>
-            Gratuit · <span className="hide-sm">3 minutes · Réponses confidentielles</span><span className="only-sm">confidentiel</span>
-          </span>
+          <>
+            <span className="nav-note">
+              <i aria-hidden="true">✓</i>
+              {t.quizNote}
+              <span className="hide-sm">{t.quizNoteLong}</span>
+              <span className="only-sm">{t.quizNoteShort}</span>
+            </span>
+            {switcher}
+          </>
         ) : (
           <>
-            {!inEspace && <Link href="/#methode">La méthode</Link>}
-            {token && !inEspace && <Link href={`/espace/${token}`}>Mon espace</Link>}
+            {!inEspace && <Link href={`${home}#methode`}>{t.method}</Link>}
+            {token && !inEspace && <Link href={localePath(lang, `/espace/${token}`)}>{t.mySpace}</Link>}
             {inEspace ? (
               <>
                 {espaceToken && (
                   <a className="btn small outline" href={`/api/leads/${espaceToken}/synthese`} download>
-                    <span className="hide-sm">Ma synthèse (PDF)</span>
-                    <span className="only-sm">PDF</span> ↓
+                    <span className="hide-sm">{t.summaryPdf}</span>
+                    <span className="only-sm">{t.pdf}</span> ↓
                   </a>
                 )}
                 <a className="btn small lime" href="#rdv">
-                  Réserver mon appel <span>↗</span>
+                  {t.bookCall} <span>↗</span>
                 </a>
               </>
             ) : (
-              <Link className="btn small" href="/diagnostic">
-                Faire le diagnostic <span>↗</span>
+              <Link className="btn small" href={localePath(lang, "/diagnostic")}>
+                {t.startDiagnostic} <span>↗</span>
               </Link>
             )}
+            {switcher}
           </>
         )}
       </nav>

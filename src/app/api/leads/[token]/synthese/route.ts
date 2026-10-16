@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { getStore } from "@/lib/store";
 import { SyntheseDocument } from "@/lib/pdf/synthese";
+import { getDictionary } from "@/i18n";
+import { leadLocale } from "@/i18n/config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** La synthèse du diagnostic en PDF, à télécharger depuis l’espace prospect. */
+/** La synthèse du diagnostic en PDF, dans la langue du prospect, à télécharger depuis son espace. */
 export async function GET(req: Request, ctx: { params: Promise<{ token: string }> }) {
   const { token } = await ctx.params;
   // ?inline=1 : affichage dans le navigateur au lieu du téléchargement.
@@ -20,11 +22,17 @@ export async function GET(req: Request, ctx: { params: Promise<{ token: string }
   try {
     const pdf = await renderToBuffer(SyntheseDocument({ lead }));
     store.addEvent(lead.id, "report_downloaded").catch(() => undefined);
-    const filename = `carnet-plein-diagnostic-${(lead.company || lead.name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}.pdf`;
+    const prefix = getDictionary(leadLocale(lead.locale)).pdf.filePrefix;
+    const slug = (lead.company || lead.name)
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
     return new NextResponse(new Uint8Array(pdf), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `${inline ? "inline" : "attachment"}; filename="${filename}"`,
+        "Content-Disposition": `${inline ? "inline" : "attachment"}; filename="${prefix}-${slug}.pdf"`,
         "Cache-Control": "private, no-store",
       },
     });

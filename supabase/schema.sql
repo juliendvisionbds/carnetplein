@@ -1,4 +1,4 @@
--- Carnet Plein — schéma Supabase
+-- Vision — schéma Supabase
 -- À exécuter une fois dans l’éditeur SQL de votre projet Supabase (Dashboard → SQL Editor).
 
 create extension if not exists pgcrypto;
@@ -8,6 +8,7 @@ create table if not exists public.leads (
   token         text not null unique,
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now(),
+  locale        text not null default 'fr' check (locale in ('en', 'fr')), -- langue du prospect (espace, e-mails, PDF)
   name          text not null,
   email         text not null,
   company       text,

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { isAdmin, isAdminConfigured } from "@/lib/auth";
 import { login } from "../actions";
+import { SITE } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
   return (
     <div className="login">
-      <div className="eyebrow">L’atelier Carnet Plein</div>
+      <div className="eyebrow">L’atelier {SITE.name}</div>
       <h1>Pilotage.</h1>
       <p style={{ fontSize: 13, margin: 0 }}>Réservé à l’équipe.</p>
       {!configured && (

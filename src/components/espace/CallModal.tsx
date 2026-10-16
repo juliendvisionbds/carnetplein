@@ -2,17 +2,29 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Booking as BookingData } from "@/lib/store";
-import { CALL, DEMO_DELAY } from "@/lib/content";
 import { BookingWidget } from "./Booking";
 import { track } from "./track";
+import { fmt, type Locale } from "@/i18n/config";
+import type { Dictionary } from "@/i18n";
 
-type Props = { token: string; name: string; email: string; bookingUrl: string; initial: BookingData | null };
+type Props = {
+  token: string;
+  name: string;
+  email: string;
+  bookingUrl: string;
+  initial: BookingData | null;
+  lang: Locale;
+  t: Dictionary["callModal"];
+  tb: Dictionary["booking"];
+  call: Dictionary["call"];
+  demoDelayShort: string;
+};
 
 /**
  * Le popup de réservation. Il s’ouvre dès que l’URL porte #rdv : tous les boutons
  * « Réserver mon appel » du site pointent sur cette ancre, aucun câblage supplémentaire.
  */
-export function CallModal({ token, name, email, bookingUrl, initial }: Props) {
+export function CallModal({ token, name, email, bookingUrl, initial, lang, t, tb, call, demoDelayShort }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
 
@@ -48,34 +60,30 @@ export function CallModal({ token, name, email, bookingUrl, initial }: Props) {
         if (e.target === ref.current) close();
       }}
     >
-      <button type="button" className="call-close" onClick={close} aria-label="Fermer">
+      <button type="button" className="call-close" onClick={close} aria-label={t.close}>
         ×
       </button>
       <div className="call-grid">
         <aside className="call-left">
-          <span className="eyebrow">Appel de {CALL.duration} · Gratuit</span>
-          <h2 id="call-title">Votre tunnel de vente est construit. On vous le montre.</h2>
-          <p className="call-intro">Le parcours que vous venez de vivre ici, refait pour votre business et vos clients.</p>
+          <span className="eyebrow">{fmt(t.eyebrow, { duration: call.duration })}</span>
+          <h2 id="call-title">{t.title}</h2>
+          <p className="call-intro">{t.intro}</p>
           <ol className="call-steps">
-            <li>
-              <b>On déroule votre démo</b>, comme un de vos clients la vivrait : la prise de contact pour votre métier, la réponse immédiate, l’espace
-              de suivi, à vos couleurs.
-            </li>
-            <li>
-              <b>On la confronte à votre diagnostic</b> : votre priorité, vos trois actions, et ce que ça change concrètement chez vous.
-            </li>
-            <li>
-              <b>Vous décidez après l’avoir vue.</b> Sans engagement, et vous gardez votre diagnostic et votre plan d’action dans tous les cas.
-            </li>
+            {t.steps.map(([lead, rest]) => (
+              <li key={lead}>
+                <b>{lead}</b>
+                {rest}
+              </li>
+            ))}
           </ol>
           <div className="call-stats">
             <div>
-              <strong>{DEMO_DELAY.replace(/^sous /, "")}</strong>
-              <span>pour recevoir votre démo par e-mail, avant ou après l’appel</span>
+              <strong>{demoDelayShort}</strong>
+              <span>{t.statDemo}</span>
             </div>
             <div>
-              <strong>2 semaines</strong>
-              <span>pour l’installer chez vous, sans refaire votre site</span>
+              <strong>{t.statSetupValue}</strong>
+              <span>{t.statSetup}</span>
             </div>
           </div>
           <div className="call-foot">
@@ -86,14 +94,14 @@ export function CallModal({ token, name, email, bookingUrl, initial }: Props) {
               <img src="/team/clement.jpg" alt="" />
             </div>
             <span>
-              Gratuit · sans engagement
+              {t.footA}
               <br />
-              En visio ou par téléphone
+              {t.footB}
             </span>
           </div>
         </aside>
         <div className="call-right">
-          {open && <BookingWidget token={token} name={name} email={email} bookingUrl={bookingUrl} initial={initial} />}
+          {open && <BookingWidget token={token} name={name} email={email} bookingUrl={bookingUrl} initial={initial} lang={lang} t={tb} callTitle={call.title} />}
         </div>
       </div>
     </dialog>

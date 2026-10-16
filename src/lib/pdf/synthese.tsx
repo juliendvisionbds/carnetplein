@@ -1,8 +1,12 @@
 import path from "node:path";
-import { Document, Font, Link, Page, Path, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
-import { CALL, DEMO_DELAY, SITE } from "@/lib/content";
-import { EVIDENCE_IDS, EVIDENCE_LABELS, SECONDARY_HINT, diagnose, formatAnswer, profileFor, profiles } from "@/lib/diagnostic";
+import { Circle, Document, Font, Link, Page, Path, Rect, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
+import { SITE } from "@/lib/content";
+import { EVIDENCE_IDS, diagnose, formatAnswer, profileFor } from "@/lib/diagnostic";
+import { tradeLabel } from "@/lib/trades";
+import { espaceUrl } from "@/lib/email";
 import type { Lead } from "@/lib/store";
+import { getDictionary } from "@/i18n";
+import { INTL_TAG, fmt, leadLocale } from "@/i18n/config";
 
 /* Polices embarquées (fichiers statiques dans src/assets/fonts). */
 const FONTS = path.join(process.cwd(), "src", "assets", "fonts");
@@ -40,7 +44,6 @@ const s = StyleSheet.create({
   dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: "#2f3522", marginRight: 6 },
   h1: { fontFamily: "Manrope", fontWeight: 800, fontSize: 21, letterSpacing: -0.7, lineHeight: 1.1, marginTop: 8 },
   h1Accent: { color: "#7971af" },
-  lead: { fontSize: 10, color: C.muted, lineHeight: 1.45, marginTop: 5, maxWidth: 440 },
   panel: { backgroundColor: C.white, borderWidth: 1, borderColor: C.line, borderRadius: 9, padding: 14, marginTop: 12 },
   panelSoft: { backgroundColor: C.soft, borderColor: C.softLine },
   badgeRow: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
@@ -79,83 +82,90 @@ const s = StyleSheet.create({
   link: { color: C.purple, textDecoration: "none" },
 });
 
+/** Le symbole Vision (même dessin que src/components/LogoMark.tsx). */
 function Mark() {
   return (
     <Svg width={22} height={22} viewBox="0 0 40 40">
-      <Path d="M4 3h32v24.5L26.5 37H4z" fill={C.lime} />
-      <Path d="M36 27.5L26.5 37v-6.5a3 3 0 0 1 3-3z" fill="#b7d354" />
-      <Path d="M4 3h32v24.5L26.5 37H4z" fill="none" stroke="#b7d354" strokeWidth={1.2} />
-      <Path d="M11 13h18M11 20h13M11 27h8" stroke={C.ink} strokeWidth={2.4} strokeLinecap="round" opacity={0.7} />
+      <Rect x={2} y={2} width={36} height={36} rx={11} fill={C.lime} stroke="#b7d354" strokeWidth={1.2} />
+      <Path d="M8 20C13 11.5 27 11.5 32 20C27 28.5 13 28.5 8 20Z" fill={C.white} stroke={C.ink} strokeWidth={2.4} />
+      <Circle cx={20} cy={20} r={4.8} fill={C.ink} />
+      <Circle cx={21.7} cy={18.3} r={1.4} fill={C.lime} />
     </Svg>
   );
 }
 
-const fmtDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" });
-
 export function SyntheseDocument({ lead }: { lead: Lead }) {
   registerFonts();
-  const a = lead.answers;
-  const d = { ...diagnose(a), key: lead.priority, secondary: lead.secondary, intensity: lead.intensity };
-  const p = profileFor(a, d);
-  const firstName = lead.name.split(" ")[0];
-  const company = lead.company || lead.trade || new URL(lead.website).hostname.replace(/^www\./, "");
-  const espace = `${SITE.url}/espace/${lead.token}`;
+  const lang = leadLocale(lead.locale);
+  const dict = getDictionary(lang);
+  const t = dict.pdf;
+  const te = dict.espace;
+  const d = dict.diagnostic;
+  const fmtDate = new Intl.DateTimeFormat(INTL_TAG[lang], { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" });
 
-  const footnote = d.uncertain
-    ? "Plusieurs réponses sont incertaines : commencez par observer votre activité pendant un mois, la démo vous y aidera."
-    : d.lowVolume && d.key !== "acquisition"
-      ? "Avec moins de cinq demandes par mois, chacune compte double : c’est précisément pour cela que votre priorité mérite d’être traitée vite."
-      : d.key === "acquisition"
-        ? "Le suivi seul ne résout pas le manque de demandes. Nous vérifierons d’abord ensemble si notre offre est pertinente pour vous."
-        : "Diagnostic indicatif fondé sur vos réponses. Vos trois actions peuvent aussi être mises en place avec vos outils actuels.";
+  const a = lead.answers;
+  const diag = { ...diagnose(a), key: lead.priority, secondary: lead.secondary, intensity: lead.intensity };
+  const p = profileFor(a, diag, d);
+  const firstName = lead.name.split(" ")[0];
+  const company = lead.company || tradeLabel(lead.trade, lang) || new URL(lead.website).hostname.replace(/^www\./, "");
+  const espace = espaceUrl(lead);
+
+  const footnote = diag.uncertain
+    ? te.footnotes.uncertain
+    : diag.lowVolume && diag.key !== "acquisition"
+      ? te.footnotes.lowVolume
+      : diag.key === "acquisition"
+        ? te.footnotes.acquisition
+        : te.footnotes.default;
 
   return (
-    <Document title={`Diagnostic Carnet Plein — ${company}`} author={SITE.name} language="fr">
+    <Document title={fmt(t.docTitle, { company })} author={SITE.name} language={lang}>
       <Page size="A4" style={s.page}>
         <View style={s.header} fixed>
           <View style={s.brand}>
             <Mark />
             <Text style={s.brandText}>
-              carnet plein<Text style={s.brandDot}>.</Text>
+              vision<Text style={s.brandDot}>.</Text>
             </Text>
           </View>
-          <Text style={s.headerMeta}>Votre diagnostic · {fmtDate.format(new Date(lead.created_at))}</Text>
+          <Text style={s.headerMeta}>{fmt(t.headerMeta, { date: fmtDate.format(new Date(lead.created_at)) })}</Text>
         </View>
 
         <View style={s.eyebrow}>
           <View style={s.dot} />
-          <Text>Votre diagnostic · {company}</Text>
+          <Text>{fmt(t.eyebrow, { company })}</Text>
         </View>
         <Text style={s.h1}>
-          Bonjour {firstName},{"\n"}votre priorité : <Text style={s.h1Accent}>{p.tag.toLowerCase()}</Text>.
+          {fmt(te.hello, { name: firstName })}
+          {"\n"}
+          {te.priorityLine}
+          <Text style={s.h1Accent}>{p.tag.toLowerCase()}</Text>.
         </Text>
 
         <View style={[s.panel, s.panelSoft]}>
           <View style={s.badgeRow}>
-            <Text style={[s.badge, s.badgeOnSoft]}>Votre priorité · {p.tag}</Text>
-            <Text style={[s.badge, d.intensity === "forte" ? s.badgeWarm : s.badgeOnSoft]}>Intensité {d.intensity}</Text>
+            <Text style={[s.badge, s.badgeOnSoft]}>{fmt(te.priorityBadge, { tag: p.tag })}</Text>
+            <Text style={[s.badge, diag.intensity === "forte" ? s.badgeWarm : s.badgeOnSoft]}>{d.intensity[diag.intensity]}</Text>
           </View>
           <Text style={s.h2}>{p.title}</Text>
           <Text style={s.p}>{p.intro}</Text>
-          {EVIDENCE_IDS[d.key].map((id) => (
+          {EVIDENCE_IDS[diag.key].map((id) => (
             <View style={s.evidence} key={id}>
-              <Text style={s.evidenceLabel}>{EVIDENCE_LABELS[id]}</Text>
-              <Text style={s.evidenceQuote}>« {formatAnswer(a, id)} »</Text>
+              <Text style={s.evidenceLabel}>{d.evidence[id]}</Text>
+              <Text style={s.evidenceQuote}>« {formatAnswer(a, id, d)} »</Text>
             </View>
           ))}
-          {d.secondary && (
+          {diag.secondary && (
             <View style={s.notice}>
-              <Text style={s.noticeTitle}>À surveiller aussi : {profiles[d.secondary].tag.toLowerCase()}</Text>
-              <Text style={{ fontSize: 9.5, color: C.muted, lineHeight: 1.45 }}>
-                Vos réponses indiquent que {SECONDARY_HINT[d.secondary]}. Nous en tiendrons compte dans votre démo.
-              </Text>
+              <Text style={s.noticeTitle}>{fmt(te.alsoWatch, { tag: d.profiles[diag.secondary].tag.toLowerCase() })}</Text>
+              <Text style={{ fontSize: 9.5, color: C.muted, lineHeight: 1.45 }}>{fmt(te.secondaryText, { hint: d.secondaryHints[diag.secondary] })}</Text>
             </View>
           )}
           <Text style={{ fontSize: 8, color: C.muted, marginTop: 8, lineHeight: 1.4 }}>{footnote}</Text>
         </View>
 
         <View style={s.panel}>
-          <Text style={s.sectionLabel}>Votre plan d’action</Text>
+          <Text style={s.sectionLabel}>{te.actionPlan}</Text>
           {p.actions.map(([title, detail], i) => (
             <View style={[s.action, i === 0 ? s.actionFirst : {}]} key={title} wrap={false}>
               <Text style={s.num}>0{i + 1}</Text>
@@ -168,11 +178,13 @@ export function SyntheseDocument({ lead }: { lead: Lead }) {
         </View>
 
         <View style={{ marginTop: 12 }} wrap={false}>
-          <Text style={s.sectionLabel}>Votre parcours, demain</Text>
+          <Text style={s.sectionLabel}>{te.tomorrowEyebrow}</Text>
           <View style={s.steps}>
             {p.projection.map((x, i) => (
               <View style={[s.step, i === p.projection.length - 1 ? s.stepLast : {}]} key={x}>
-                <Text style={s.stepLabel}>ÉTAPE 0{i + 1}</Text>
+                <Text style={s.stepLabel}>
+                  {te.step} 0{i + 1}
+                </Text>
                 <Text style={s.stepText}>{x}</Text>
               </View>
             ))}
@@ -181,29 +193,27 @@ export function SyntheseDocument({ lead }: { lead: Lead }) {
 
         <View style={s.next} wrap={false}>
           <View style={[s.nextCol, s.nextDark]}>
-            <Text style={[s.nextTitle, s.onDark]}>Votre démo est en préparation.</Text>
-            <Text style={[s.nextText, s.onDarkMuted]}>
-              Nous construisons la version complète de votre tunnel de vente, à vos couleurs. Vous la recevrez par e-mail {DEMO_DELAY}.
-            </Text>
+            <Text style={[s.nextTitle, s.onDark]}>{t.demoTitle}</Text>
+            <Text style={[s.nextText, s.onDarkMuted]}>{fmt(t.demoText, { delay: dict.demoDelay })}</Text>
           </View>
           <View style={[s.nextCol, s.nextLime]}>
-            <Text style={[s.nextTitle, s.onLime]}>{CALL.duration} pour en parler ?</Text>
-            <Text style={[s.nextText, s.onLime]}>Vos réponses à l’écran, votre démo, vos questions. Sans engagement.</Text>
+            <Text style={[s.nextTitle, s.onLime]}>{fmt(t.callTitle, { duration: dict.call.duration })}</Text>
+            <Text style={[s.nextText, s.onLime]}>{t.callText}</Text>
             <Link src={`${espace}#rdv`} style={s.cta}>
-              {CALL.title} →
+              {dict.call.title} →
             </Link>
           </View>
         </View>
 
         <View style={s.footer} fixed>
           <Text>
-            Votre espace :{" "}
+            {t.footerSpace}
             <Link src={espace} style={s.link}>
               {espace}
             </Link>
           </Text>
           <Text>
-            {SITE.name} · {SITE.tagline}
+            {SITE.name} · {dict.meta.tagline}
           </Text>
         </View>
       </Page>

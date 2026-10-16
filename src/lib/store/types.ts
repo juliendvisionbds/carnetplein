@@ -1,4 +1,5 @@
-import type { Answers, ProfileKey, ScoredKey, Stage } from "@/lib/diagnostic";
+import type { Answers, Intensity, ProfileKey, ScoredKey, Stage } from "@/lib/diagnostic";
+import type { Locale } from "@/i18n/config";
 
 export type Booking = {
   /** "embed" si pris via Cal.com/Calendly, "request" si demandé via le formulaire interne. */
@@ -15,20 +16,22 @@ export type Lead = {
   token: string;
   created_at: string;
   updated_at: string;
+  /** Langue du prospect : espace, e-mails et synthèse PDF lui sont servis dans cette langue. */
+  locale: Locale;
   name: string;
   email: string;
   company: string | null;
   website: string;
   phone: string | null;
   context: string | null;
-  /** Métier détecté depuis le site (ou corrigé dans le pilotage). */
+  /** Métier détecté depuis le site (ou corrigé dans le pilotage), libellé français canonique. */
   trade: string | null;
   site_title: string | null;
   site_description: string | null;
   answers: Answers;
   priority: ProfileKey;
   secondary: ScoredKey | null;
-  intensity: "forte" | "modérée" | "faible";
+  intensity: Intensity;
   stage: Stage;
   demo_url: string | null;
   booking: Booking | null;

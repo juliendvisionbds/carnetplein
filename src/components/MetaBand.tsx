@@ -1,37 +1,31 @@
+import type { Dictionary } from "@/i18n";
+
 type Props = {
-  eyebrow: string;
-  title: string;
-  body: string;
-  punchline?: string;
+  t: Dictionary["metaBand"];
   /** Bouton affiché à la place de la punchline. */
   cta?: { href: string; label: string };
-  /** Libellés des deux colonnes du miroir. */
-  left?: string;
-  right?: string;
 };
 
-const STEPS = ["Les bonnes questions", "Une réponse immédiate", "Une page à son nom", "Un suivi jusqu’à la décision"];
-
 /** La bande « méta » : le parcours vécu par le prospect est exactement celui que vivront ses clients. */
-export function MetaBand({ eyebrow, title, body, punchline, cta, left = "Vous, à l’instant", right = "Vos clients, demain" }: Props) {
+export function MetaBand({ t, cta }: Props) {
   return (
-    <section className="meta-band" aria-label="Le parcours que vous venez de vivre">
+    <section className="meta-band" aria-label={t.aria}>
       <div>
-        <div className="eyebrow">{eyebrow}</div>
-        <h2>{title}</h2>
-        <p>{body}</p>
+        <div className="eyebrow">{t.eyebrow}</div>
+        <h2>{t.title}</h2>
+        <p>{t.body}</p>
         {cta ? (
           <a className="btn" href={cta.href}>
             {cta.label} <span>↗</span>
           </a>
         ) : (
-          punchline && <span className="punch">{punchline}</span>
+          <span className="punch">{t.punchline}</span>
         )}
       </div>
       <div className="mirror" aria-hidden="true">
         <div className="col">
-          <b>{left}</b>
-          {STEPS.map((s) => (
+          <b>{t.left}</b>
+          {t.steps.map((s) => (
             <div key={s}>
               <i /> {s}
             </div>
@@ -39,8 +33,8 @@ export function MetaBand({ eyebrow, title, body, punchline, cta, left = "Vous, �
         </div>
         <div className="eq">=</div>
         <div className="col">
-          <b>{right}</b>
-          {STEPS.map((s) => (
+          <b>{t.right}</b>
+          {t.steps.map((s) => (
             <div key={s}>
               <i /> {s}
             </div>

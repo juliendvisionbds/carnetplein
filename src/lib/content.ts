@@ -1,41 +1,35 @@
 /**
- * Textes et paramètres commerciaux centralisés.
- * Modifiez ici les prix, la phrase « méta » et les coordonnées de l’agence.
+ * Paramètres commerciaux et identité, indépendants de la langue.
+ * Les textes traduits vivent dans src/i18n/dictionaries.
  */
 
 export const SITE = {
-  name: "Carnet Plein",
-  tagline: "Moins de demandes oubliées. Plus de projets signés.",
-  description:
-    "Découvrez où vos demandes de devis se perdent. Carnet Plein installe votre parcours de conversion et suit vos prospects jusqu’à leur décision.",
+  name: "Vision",
   url: process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "http://localhost:3000",
 };
 
-export const PRICING = {
-  setup: "970 € HT",
-  monthly: "490 € HT/mois",
-  footnote: "Sans engagement de durée",
+/** Prix affichés dans les deux langues (euros, hors taxes). */
+export const PRICE = {
+  setup: 970,
+  monthly: 490,
 };
 
 /** Lien de prise de rendez-vous (Cal.com, Calendly, Google Agenda…). Vide = formulaire interne. */
 export const BOOKING_URL = process.env.NEXT_PUBLIC_BOOKING_URL?.trim() || "";
 
-export const CALL = {
-  duration: "15 minutes",
-  title: "Réserver mon appel de 15 min",
-};
-
-/** Délai annoncé au prospect pour recevoir la démo complète de son tunnel de vente. */
-export const DEMO_DELAY = "sous 2 à 3 jours ouvrés";
+/** Durée de l’appel découverte, en minutes. */
+export const CALL_MINUTES = 15;
 
 /**
- * Le moment « méta » : le prospect vient de vivre exactement ce que ses propres
- * clients vivront. À afficher en grand, après le diagnostic.
+ * Identité juridique de l’agence, affichée sur les mentions légales (dans les deux langues).
+ * Les champs entre crochets sont à compléter.
  */
-export const META = {
-  eyebrow: "Plot twist",
-  title: "Vous étiez le client depuis le début.",
-  body:
-    "Les bonnes questions, une réponse immédiate, une page à votre nom, un suivi jusqu’au rendez-vous… ce n’est pas notre site. C’est notre produit. Vous venez de traverser, de l’intérieur, le tunnel de vente qu’on va construire pour vos prospects.",
-  punchline: "Inception, version devis.",
+export const EDITOR = {
+  name: "[Raison sociale de l’agence]",
+  form: "[Forme juridique, capital social]",
+  address: "[Adresse du siège social]",
+  registration: "[RCS ville et numéro, ou SIREN]",
+  vat: "[Numéro de TVA intracommunautaire]",
+  email: "[Adresse e-mail de contact]",
+  director: "[Nom du directeur ou de la directrice de la publication]",
 };

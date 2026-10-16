@@ -1,14 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getStore } from "@/lib/store";
-import { STAGES, formatAnswer, profiles, questions, questionLabel } from "@/lib/diagnostic";
-import { SITE, CALL } from "@/lib/content";
+import { STAGES, formatAnswer, questions, questionLabel } from "@/lib/diagnostic";
+import { SITE } from "@/lib/content";
 import { TRADES } from "@/lib/trades";
+import { espaceUrl } from "@/lib/email";
+import { getDictionary } from "@/i18n";
+import { LOCALE_NAME, leadLocale } from "@/i18n/config";
 import { addNote, deleteLead, requireAdmin, setDemoUrl, setStage, setTrade } from "../../actions";
 
 export const dynamic = "force-dynamic";
 
 const fmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Paris" });
+const FR = getDictionary("fr");
 
 const EVENT_LABELS: Record<string, string> = {
   lead_created: "Diagnostic envoyé",
@@ -34,13 +38,25 @@ export default async function LeadPage({ params, searchParams }: { params: Promi
   const lead = await store.getLeadById(id);
   if (!lead) notFound();
   const [notes, events] = await Promise.all([store.listNotes(id), store.listEvents(id)]);
-  const p = profiles[lead.priority];
+  const lang = leadLocale(lead.locale);
+  const d = FR.diagnostic;
+  const p = d.profiles[lead.priority];
+  // Le message suggéré est rédigé dans la langue du prospect ; le reste de la fiche reste en français.
+  const pl = getDictionary(lang).diagnostic.profiles[lead.priority];
+  const call = getDictionary(lang).call;
   const firstName = lead.name.split(" ")[0];
-  const espace = `${SITE.url}/espace/${lead.token}`;
+  const espace = espaceUrl(lead);
 
-  const followUp = lead.demo_url
-    ? `Bonjour ${firstName},\n\nVotre démo est en ligne : ${lead.demo_url}\nElle reprend votre priorité (${p.tag.toLowerCase()}) et la prise de contact adaptée à votre métier.\n\nRegardez-la comme le ferait un de vos clients, puis prenons ${CALL.duration} pour en parler : ${espace}#rdv\n\nÀ très vite,`
-    : `Bonjour ${firstName},\n\nMerci pour votre diagnostic. Votre priorité : ${p.tag.toLowerCase()}. Nous construisons en ce moment la démo complète de votre tunnel de vente.\n\nSi vous voulez prendre un peu d’avance, ${CALL.duration} suffisent pour regarder vos réponses ensemble : ${espace}#rdv\n\nÀ très vite,`;
+  const followUp =
+    lang === "en"
+      ? lead.demo_url
+        ? `Hi ${firstName},\n\nYour demo is live: ${lead.demo_url}\nIt builds on your priority (${pl.tag.toLowerCase()}) and the first contact tailored to your trade.\n\nWatch it the way one of your customers would, then let’s take ${call.duration} to talk it through: ${espace}#rdv\n\nTalk soon,`
+        : `Hi ${firstName},\n\nThanks for your diagnostic. Your priority: ${pl.tag.toLowerCase()}. We’re currently building the full demo of your sales funnel.\n\nIf you’d like to get a head start, ${call.duration} are enough to look at your answers together: ${espace}#rdv\n\nTalk soon,`
+      : lead.demo_url
+        ? `Bonjour ${firstName},\n\nVotre démo est en ligne : ${lead.demo_url}\nElle reprend votre priorité (${pl.tag.toLowerCase()}) et la prise de contact adaptée à votre métier.\n\nRegardez-la comme le ferait un de vos clients, puis prenons ${call.duration} pour en parler : ${espace}#rdv\n\nÀ très vite,`
+        : `Bonjour ${firstName},\n\nMerci pour votre diagnostic. Votre priorité : ${pl.tag.toLowerCase()}. Nous construisons en ce moment la démo complète de votre tunnel de vente.\n\nSi vous voulez prendre un peu d’avance, ${call.duration} suffisent pour regarder vos réponses ensemble : ${espace}#rdv\n\nÀ très vite,`;
+
+  const mailSubject = lang === "en" ? `Your ${SITE.name} diagnostic` : `Votre diagnostic ${SITE.name}`;
 
   return (
     <div className="admin">
@@ -52,7 +68,8 @@ export default async function LeadPage({ params, searchParams }: { params: Promi
       <div className="admin-top" style={{ marginTop: 14 }}>
         <div>
           <span className="badge purple">{p.tag}</span> <span className="badge grey">Intensité {lead.intensity}</span>{" "}
-          {lead.secondary && <span className="badge grey">Aussi : {profiles[lead.secondary].tag}</span>}
+          {lead.secondary && <span className="badge grey">Aussi : {d.profiles[lead.secondary].tag}</span>}{" "}
+          <span className="badge grey">{LOCALE_NAME[lang]}</span>
           <h1 style={{ marginTop: 12 }}>{lead.company || lead.name}</h1>
           <p style={{ margin: "6px 0 0" }}>
             {lead.name}
@@ -60,7 +77,7 @@ export default async function LeadPage({ params, searchParams }: { params: Promi
           </p>
         </div>
         <div className="actions">
-          <a className="btn outline small" href={`mailto:${lead.email}?subject=${encodeURIComponent("Votre diagnostic Carnet Plein")}`}>
+          <a className="btn outline small" href={`mailto:${lead.email}?subject=${encodeURIComponent(mailSubject)}`}>
             Écrire un e-mail
           </a>
           <a className="btn outline small" href={espace} target="_blank" rel="noreferrer">
@@ -82,6 +99,8 @@ export default async function LeadPage({ params, searchParams }: { params: Promi
               <a href={lead.website} target="_blank" rel="noreferrer">
                 {lead.website}
               </a>
+              <span>Langue</span>
+              <div>{LOCALE_NAME[lang]}</div>
               {lead.site_title && (
                 <>
                   <span>Titre du site</span>
@@ -141,8 +160,8 @@ export default async function LeadPage({ params, searchParams }: { params: Promi
               <div className="answers">
                 {questions.map((q) => (
                   <p key={q.id}>
-                    <b>{questionLabel(q)}</b>
-                    {formatAnswer(lead.answers, q.id)}
+                    <b>{questionLabel(q, d)}</b>
+                    {formatAnswer(lead.answers, q.id, d)}
                   </p>
                 ))}
               </div>
@@ -151,7 +170,9 @@ export default async function LeadPage({ params, searchParams }: { params: Promi
 
           <div className="panel">
             <div className="eyebrow">Message de suivi suggéré</div>
-            <p style={{ fontSize: 12 }}>À adapter au stade réel du dossier, puis à copier dans votre e-mail.</p>
+            <p style={{ fontSize: 12 }}>
+              Rédigé en {LOCALE_NAME[lang].toLowerCase()}, la langue du prospect. À adapter au stade réel du dossier, puis à copier dans votre e-mail.
+            </p>
             <div className="copy-block">{followUp}</div>
           </div>
         </div>
@@ -202,7 +223,7 @@ export default async function LeadPage({ params, searchParams }: { params: Promi
               )}
               <label className="check" style={{ margin: "12px 0" }}>
                 <input type="checkbox" name="notify" defaultChecked />
-                <span>Envoyer l’e-mail « Votre démo est prête » au prospect</span>
+                <span>Envoyer l’e-mail « Votre démo est prête » au prospect (en {LOCALE_NAME[lang].toLowerCase()})</span>
               </label>
               <button className="btn small" type="submit">
                 {lead.demo_url ? "Mettre à jour la démo" : "Enregistrer et envoyer"}

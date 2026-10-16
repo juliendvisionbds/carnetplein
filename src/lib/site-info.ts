@@ -1,4 +1,5 @@
 import { guessTrade } from "@/lib/trades";
+import type { Locale } from "@/i18n/config";
 
 export type SiteInfo = { title: string | null; description: string | null; trade: string | null };
 
@@ -20,11 +21,13 @@ function meta(html: string, name: string): string | null {
   return m ? decode(m[1]).slice(0, 300) || null : null;
 }
 
+const ACCEPT_LANGUAGE: Record<Locale, string> = { fr: "fr-FR,fr;q=0.9,en;q=0.6", en: "en-US,en;q=0.9,fr;q=0.6" };
+
 /**
  * Lit le titre et la description du site du prospect, puis en déduit un métier probable.
  * Meilleur effort : en cas d’échec (site lent, bloqué, hors ligne), tout reste à null.
  */
-export async function fetchSiteInfo(url: string, timeoutMs = 4000): Promise<SiteInfo> {
+export async function fetchSiteInfo(url: string, lang: Locale = "fr", timeoutMs = 4000): Promise<SiteInfo> {
   const empty: SiteInfo = { title: null, description: null, trade: null };
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -36,7 +39,7 @@ export async function fetchSiteInfo(url: string, timeoutMs = 4000): Promise<Site
         // User-Agent de navigateur : beaucoup de sites renvoient une page vide ou un refus aux robots déclarés.
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36",
         Accept: "text/html,application/xhtml+xml",
-        "Accept-Language": "fr-FR,fr;q=0.9",
+        "Accept-Language": ACCEPT_LANGUAGE[lang],
       },
     });
     if (!res.ok || !(res.headers.get("content-type") ?? "").includes("html")) return empty;

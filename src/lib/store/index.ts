@@ -20,7 +20,7 @@ export function getStore(): LeadStore {
   if (isSupabaseConfigured()) {
     instance = new SupabaseLeadStore(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
   } else if (process.env.NODE_ENV !== "production") {
-    console.warn("[carnet-plein] Supabase non configuré : stockage local .data/leads.json (développement).");
+    console.warn("[vision] Supabase non configuré : stockage local .data/leads.json (développement).");
     instance = new FileLeadStore();
   } else {
     throw new Error(

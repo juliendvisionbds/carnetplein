@@ -1,5 +1,7 @@
 # Analyse du diagnostic
 
+> **Mise à jour du 16 octobre 2026 (version bilingue, marque Vision).** Les réponses sont désormais stockées sous forme de clés stables plutôt que de libellés français : `volume` (`lt5`, `5_20`, `21_50`, `gt50`), `source` (`word_of_mouth`, `website`, `ads`, `social`, `platforms`, `other`), `conversion` (`0_1`, `2_3`, `4_6`, `7_plus`), `response` (`hour`, `day`, `next_day`, `days`), `qual` (`name_only`, `partial`, `all`), `detail` (`budget`, `date`, `zone`, `need` ou, si `qual = all`, `shared_sheet`, `search_messages`, `in_head`), `quote` (`clear`, `several_exchanges`, `delayed`), `follow` (`planned`, `when_i_think`, `once`, `never`), `tracking` (`shared_tool`, `spreadsheet`, `emails_notebook`, `in_head`) ; `unknown` vaut « je ne sais pas » partout. Les règles ci-dessous restent valables, les libellés cités correspondent à ces clés (dictionnaire `src/i18n/dictionaries/fr.ts`).
+
 Revue de la logique du diagnostic telle qu’elle existait dans la démo (`legacy-demo/app.js`, fonction `diagnose`), ce qui a été corrigé, et ce qui reste à décider.
 
 ## Ce qui est bon
