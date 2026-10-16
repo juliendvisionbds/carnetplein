@@ -1,3 +1,4 @@
+import { DM_Sans, Manrope } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Toaster } from "@/components/Toaster";
@@ -7,19 +8,16 @@ import type { Locale } from "@/i18n/config";
 
 type Props = { lang: Locale; variant?: "public" | "admin"; children: React.ReactNode };
 
+// Polices variables auto-hébergées par next/font (pas de requête vers Google Fonts au chargement),
+// exposées en variables CSS utilisées par globals.css.
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans", display: "swap" });
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", display: "swap" });
+
 /** Squelette HTML commun aux deux layouts racines (site public par langue, back-office). */
 export function Shell({ lang, variant = "public", children }: Props) {
   const t = getDictionary(lang);
   return (
-    <html lang={lang} data-scroll-behavior="smooth">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang={lang} className={`${dmSans.variable} ${manrope.variable}`} data-scroll-behavior="smooth">
       <body>
         <Header lang={lang} t={t.nav} variant={variant} />
         <main id="app">{children}</main>

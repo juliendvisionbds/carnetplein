@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { HeroQuestion, type HeroQuestionData } from "@/components/HeroQuestion";
 import { getDictionary } from "@/i18n";
 import { fmt, hasLocale, localePath, pagePath } from "@/i18n/config";
-import { pageMetadata } from "@/i18n/metadata";
+import { homeStructuredData, jsonLdScript, pageMetadata } from "@/i18n/metadata";
 import { optionLabel, questions, resolveOpts } from "@/lib/diagnostic";
 
 type Params = Promise<{ lang: string }>;
@@ -35,6 +35,7 @@ export default async function HomePage({ params }: { params: Params }) {
 
   return (
     <div className="wrap">
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(homeStructuredData(lang))} />
       <div className="hero">
         <div>
           <div className="eyebrow">{t.eyebrow}</div>

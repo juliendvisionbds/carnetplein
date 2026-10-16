@@ -44,6 +44,7 @@ function serveDefault(request: NextRequest) {
 }
 
 export const config = {
-  // Tout sauf l’API, le back-office, les ressources internes et les fichiers (icône, images, sitemap…).
-  matcher: ["/((?!api|admin|_next|.*\\..*).*)"],
+  // Tout sauf l’API, le back-office, les ressources internes, les images générées
+  // (/apple-icon, /en/opengraph-image/…, /fr/opengraph-image/…) et les fichiers (icône, sitemap…).
+  matcher: ["/((?!api|admin|_next|apple-icon|(?:[^/]+/)?opengraph-image|.*\\..*).*)"],
 };

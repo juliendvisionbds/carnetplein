@@ -4,9 +4,10 @@ import type { Dictionary } from "@/i18n";
 /** Dictionnaire français (servi sous /fr). Même structure que le dictionnaire anglais. */
 export const fr: Dictionary = {
   meta: {
-    title: `${SITE.name} — Faites avancer vos devis.`,
+    title: `Transformez vos demandes de devis en projets signés — ${SITE.name}`,
     tagline: "Moins de demandes oubliées. Plus de projets signés.",
-    description: `Découvrez où vos demandes de devis se perdent. ${SITE.name} installe votre parcours de conversion et suit vos prospects jusqu’à leur décision.`,
+    description: "Diagnostic gratuit en 3 minutes pour les entreprises qui vendent sur devis : découvrez où se perdent vos demandes et comment signer plus de projets.",
+    serviceType: "Conversion des demandes de devis et suivi des prospects",
   },
 
   pricing: {
@@ -115,8 +116,8 @@ export const fr: Dictionary = {
   },
 
   diagnosticPage: {
-    title: "Votre diagnostic gratuit",
-    description: "Neuf questions, trois minutes : découvrez où vos demandes de devis se perdent et quoi faire en premier.",
+    title: "Diagnostic gratuit de vos demandes de devis (3 min)",
+    description: "Neuf questions, trois minutes : découvrez où se perdent vos demandes de devis, votre point de blocage n°1 et trois actions pour cette semaine. Gratuit.",
   },
 
   quiz: {

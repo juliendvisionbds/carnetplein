@@ -7,9 +7,11 @@ import { CALL_MINUTES, PRICE, SITE } from "@/lib/content";
  */
 export const en = {
   meta: {
-    title: `${SITE.name} — Move your quotes forward.`,
+    title: `Turn more quote requests into signed projects — ${SITE.name}`,
     tagline: "Fewer forgotten inquiries. More signed projects.",
-    description: `Find out where your quote requests get lost. ${SITE.name} sets up your conversion journey and follows your prospects through to their decision.`,
+    description: "Free 3-minute diagnostic for businesses that sell on quotes: find out where your inquiries get lost and how to turn more of them into signed projects.",
+    /** Type de service annoncé dans les données structurées (schema.org). */
+    serviceType: "Quote request conversion and prospect follow-up",
   },
 
   pricing: {
@@ -119,8 +121,8 @@ export const en = {
   },
 
   diagnosticPage: {
-    title: "Your free diagnostic",
-    description: "Nine questions, three minutes: find out where your quote requests get lost and what to do first.",
+    title: "Free quote follow-up diagnostic (3 min)",
+    description: "Nine questions, three minutes: find out where your quote requests get lost, get your #1 bottleneck and three actions to take this week. Free, instant result.",
   },
 
   quiz: {

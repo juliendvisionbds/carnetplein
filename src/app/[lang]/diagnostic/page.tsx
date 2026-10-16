@@ -18,5 +18,12 @@ export default async function DiagnosticPage({ params }: { params: Params }) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const t = getDictionary(lang);
-  return <Quiz lang={lang} t={t.quiz} d={t.diagnostic} />;
+  // Le questionnaire s’affiche après lecture des réponses enregistrées dans le navigateur :
+  // ce titre garantit un h1 dès le HTML serveur (moteurs de recherche, lecteurs d’écran).
+  return (
+    <>
+      <h1 className="sr-only">{t.diagnosticPage.title}</h1>
+      <Quiz lang={lang} t={t.quiz} d={t.diagnostic} />
+    </>
+  );
 }
