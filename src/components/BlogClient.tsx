@@ -48,6 +48,23 @@ export function PostToc({ items, title }: { items: TocItem[]; title: string }) {
   );
 }
 
+/**
+ * Texte d’un message à copier : paragraphes séparés par une ligne vide, listes gardées avec leurs tirets
+ * (ou numéros) et collées à la phrase qui les annonce, comme dans un e-mail écrit à la main.
+ */
+function messageText(root: HTMLElement): string {
+  let text = "";
+  for (const block of Array.from(root.children) as HTMLElement[]) {
+    if (block.tagName === "UL" || block.tagName === "OL") {
+      const items = Array.from(block.children).map((li, i) => `${block.tagName === "OL" ? `${i + 1}.` : "-"} ${(li as HTMLElement).innerText.trim()}`);
+      text += (text ? "\n" : "") + items.join("\n");
+    } else {
+      text += (text ? "\n\n" : "") + block.innerText.trim();
+    }
+  }
+  return text.trim();
+}
+
 /** Modèle de message (citation annoncée par « **SMS** », « **E-mail** »…) avec un bouton pour copier son texte. */
 export function TemplateQuote({ children, copy, copied }: { children: React.ReactNode; copy: string; copied: string }) {
   const body = useRef<HTMLDivElement>(null);
@@ -61,7 +78,7 @@ export function TemplateQuote({ children, copy, copied }: { children: React.Reac
 
   async function onCopy() {
     const el = body.current;
-    const text = el?.innerText.trim();
+    const text = el ? messageText(el) : "";
     if (!el || !text) return;
     try {
       await navigator.clipboard.writeText(text);
