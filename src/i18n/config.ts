@@ -74,6 +74,7 @@ export const BLOG_SLUGS = {
   "quote-follow-up": { en: "how-to-follow-up-on-a-quote", fr: "relancer-un-devis-modeles" },
   "client-silence": { en: "client-not-responding-after-quote", fr: "client-ne-repond-plus-apres-devis" },
   "response-time": { en: "how-fast-reply-quote-request", fr: "delai-reponse-demande-devis" },
+  "qualifying-questions": { en: "questions-to-ask-before-quoting", fr: "questions-avant-devis" },
 } as const;
 export type BlogKey = keyof typeof BLOG_SLUGS;
 export const BLOG_KEYS = Object.keys(BLOG_SLUGS) as BlogKey[];

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { COMPANY, SITE } from "@/lib/content";
 import { Flag } from "@/components/Flag";
 import { LangSwitch } from "@/components/LangSwitch";
-import { LOCALES, LOCALE_NAME, TRADE_KEYS, fmt, localePath, pagePath, tradePath, type Locale } from "@/i18n/config";
+import { LOCALES, LOCALE_NAME, TRADE_KEYS, fmt, localePath, pagePath, toolPath, tradePath, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n";
 
 type Props = { lang: Locale; dict: Dictionary; variant?: "public" | "admin" };
@@ -32,6 +32,8 @@ export function Footer({ lang, dict, variant = "public" }: Props) {
         { href: diagnostic, label: t.diagnostic },
         { href: `${home}#methode`, label: t.method },
         { href: `${home}#faq`, label: t.faq },
+        { href: toolPath(lang, "quoteFollowUp"), label: t.followUp },
+        { href: toolPath(lang), label: t.tools },
         { href: localePath(lang, "/blog"), label: dict.blog.crumb },
       ],
     },

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LEAD_TOKEN_KEY } from "@/lib/client-storage";
 import { LogoMark } from "@/components/LogoMark";
-import { localePath, stripLocale, type Locale } from "@/i18n/config";
+import { localePath, stripLocale, toolPath, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n";
 
 type Props = { lang: Locale; t: Dictionary["nav"]; variant?: "public" | "admin" };
@@ -52,6 +52,7 @@ export function Header({ lang, t, variant = "public" }: Props) {
         ) : (
           <>
             {!inEspace && <Link href={`${home}#methode`}>{t.method}</Link>}
+            {!inEspace && <Link href={toolPath(lang)}>{t.tools}</Link>}
             {!inEspace && <Link href={localePath(lang, "/blog")}>{t.blog}</Link>}
             {token && !inEspace && <Link href={localePath(lang, `/espace/${token}`)}>{t.mySpace}</Link>}
             {inEspace ? (

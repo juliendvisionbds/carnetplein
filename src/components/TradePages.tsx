@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { HeroQuestion } from "@/components/HeroQuestion";
 import type { Dictionary } from "@/i18n";
-import { TRADE_KEYS, fmt, localePath, pagePath, tradePath, type Locale, type TradeKey } from "@/i18n/config";
+import { FOLLOW_UP_SITUATION_KEYS, TRADE_KEYS, fmt, followUpPath, localePath, pagePath, toolPath, tradePath, type Locale, type TradeKey } from "@/i18n/config";
+import { getFollowUpCopy } from "@/i18n/follow-up";
 import { jsonLdScript, tradeStructuredData, tradesIndexStructuredData } from "@/i18n/metadata";
 import { firstQuestionCard } from "@/lib/diagnostic";
 
@@ -87,6 +88,7 @@ export function TradePage({ lang, dict, trade }: { lang: Locale; dict: Dictionar
   const home = dict.home;
   const diagnosticHref = localePath(lang, "/diagnostic");
   const priceVars = { setup: dict.pricing.setup, monthly: dict.pricing.monthly, footnote: dict.pricing.footnote.toLowerCase() };
+  const followUp = getFollowUpCopy(lang);
 
   return (
     <div className="wrap">
@@ -179,6 +181,23 @@ export function TradePage({ lang, dict, trade }: { lang: Locale; dict: Dictionar
             <p>{fmt(a, priceVars)}</p>
           </details>
         ))}
+      </section>
+
+      <section className="trade-others trade-follow-up">
+        <h2>{fmt(dict.tools.followUpCase.tradeSectionTitle, { audience: followUp.trades[trade].audience })}</h2>
+        <p>{dict.tools.followUpCase.tradeSectionIntro}</p>
+        <ul className="trade-links">
+          {FOLLOW_UP_SITUATION_KEYS.map((situation) => (
+            <li key={situation}>
+              <Link href={followUpPath(lang, trade, situation)}>{followUp.situations[situation].label}</Link>
+            </li>
+          ))}
+          <li>
+            <Link className="all" href={toolPath(lang, "quoteFollowUp")}>
+              {dict.tools.followUp.name} →
+            </Link>
+          </li>
+        </ul>
       </section>
 
       <section className="trade-others">

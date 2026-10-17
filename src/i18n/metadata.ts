@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
 import { COMPANY, PRICE, SITE, TEAM } from "@/lib/content";
 import { getDictionary } from "@/i18n";
-import { OG_LOCALE, TRADE_KEYS, blogPath, fmt, localePath, otherLocale, pagePath, tradePath, type BlogKey, type Locale, type LocalizedPage, type TradeKey } from "@/i18n/config";
+import { FOLLOW_UP_SITUATION_KEYS, OG_LOCALE, TRADE_KEYS, blogPath, fmt, followUpPath, localePath, otherLocale, pagePath, toolPath, tradePath, type BlogKey, type FollowUpSituation, type Locale, type LocalizedPage, type ToolKey, type TradeKey } from "@/i18n/config";
+import { getFollowUpCopy } from "@/i18n/follow-up";
 import type { PostMeta } from "@/lib/blog";
 
-/** Une page publique : adresse fixe (identique dans les deux langues), page à segment traduit, page métier ou article du blog. */
-export type PageRef = { path: string } | { page: LocalizedPage } | { trade: TradeKey } | { post: BlogKey };
+/** Une page publique : adresse fixe (identique dans les deux langues), page à segment traduit, page métier, article du blog, outil gratuit ou page de modèles de relance. */
+export type PageRef = { path: string } | { page: LocalizedPage } | { trade: TradeKey } | { post: BlogKey } | { tool: ToolKey } | { followUp: { trade: TradeKey; situation: FollowUpSituation } };
 
 export function pathFor(lang: Locale, ref: PageRef): string {
   if ("trade" in ref) return tradePath(lang, ref.trade);
   if ("post" in ref) return blogPath(lang, ref.post);
+  if ("tool" in ref) return toolPath(lang, ref.tool);
+  if ("followUp" in ref) return followUpPath(lang, ref.followUp.trade, ref.followUp.situation);
   return "page" in ref ? pagePath(lang, ref.page) : localePath(lang, ref.path);
 }
 
@@ -335,6 +338,100 @@ export function blogPostMetadata(lang: Locale, post: PostMeta): Metadata {
     twitter: { card: "summary_large_image", title, description: post.description, ...(cover ? { images: [cover[0].url] } : {}) },
   };
 }
+
+/** Données structurées de la page des outils : fil d’Ariane et liste des outils. */
+export function toolsIndexStructuredData(lang: Locale) {
+  const t = getDictionary(lang).tools;
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbList(lang, [{ name: t.crumb, path: toolPath(lang) }]),
+      {
+        "@type": "ItemList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: t.followUp.name, url: absoluteUrl(toolPath(lang, "quoteFollowUp")) },
+          { "@type": "ListItem", position: 2, name: t.index.diagnosticTitle, url: absoluteUrl(localePath(lang, "/diagnostic")) },
+        ],
+      },
+    ],
+  };
+}
+
+/**
+ * Données structurées du générateur de relances : fil d’Ariane, l’application web (gratuite)
+ * et la FAQ affichée (la question sur les données suit la version affichée, avec ou sans IA).
+ */
+export function quoteFollowUpStructuredData(lang: Locale, aiEnabled: boolean) {
+  const t = getDictionary(lang).tools;
+  const f = t.followUp;
+  const url = absoluteUrl(toolPath(lang, "quoteFollowUp"));
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbList(lang, [
+        { name: t.crumb, path: toolPath(lang) },
+        { name: f.name, path: toolPath(lang, "quoteFollowUp") },
+      ]),
+      {
+        "@type": "WebApplication",
+        "@id": `${url}#app`,
+        name: f.name,
+        description: f.description,
+        url,
+        inLanguage: lang,
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Any",
+        isAccessibleForFree: true,
+        offers: { "@type": "Offer", price: 0, priceCurrency: "EUR" },
+        publisher: ORG_REF,
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${url}#faq`,
+        inLanguage: lang,
+        mainEntity: [...f.faq, aiEnabled ? f.faqPrivacyAi : f.faqPrivacy].map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+      },
+    ],
+  };
+}
+
+/** Titre d’une page de modèles de relance : « Following up on a kitchen quote with no reply ». */
+export function followUpCaseTitle(lang: Locale, trade: TradeKey, situation: FollowUpSituation) {
+  const copy = getFollowUpCopy(lang);
+  return fmt(copy.situations[situation].h1, { aQuote: copy.trades[trade].aQuote });
+}
+
+/** Données structurées d’une page de modèles : fil d’Ariane et la page, rattachée au générateur. */
+export function followUpCaseStructuredData(lang: Locale, trade: TradeKey, situation: FollowUpSituation) {
+  const dict = getDictionary(lang);
+  const t = dict.tools;
+  const copy = getFollowUpCopy(lang);
+  const path = followUpPath(lang, trade, situation);
+  const url = absoluteUrl(path);
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbList(lang, [
+        { name: t.crumb, path: toolPath(lang) },
+        { name: t.followUp.name, path: toolPath(lang, "quoteFollowUp") },
+        { name: fmt(t.followUpCase.crumb, { trade: dict.trades.pages[trade].name, situation: copy.situations[situation].label }), path },
+      ]),
+      {
+        "@type": "WebPage",
+        "@id": `${url}#webpage`,
+        url,
+        name: followUpCaseTitle(lang, trade, situation),
+        description: fmt(copy.situations[situation].description, { audience: copy.trades[trade].audience }),
+        inLanguage: lang,
+        isPartOf: { "@id": `${absoluteUrl(toolPath(lang, "quoteFollowUp"))}#app` },
+        publisher: ORG_REF,
+      },
+    ],
+  };
+}
+
+/** Toutes les pages de modèles de relance (métier × situation), dans l’ordre des listes. */
+export const FOLLOW_UP_CASES = TRADE_KEYS.flatMap((trade) => FOLLOW_UP_SITUATION_KEYS.map((situation) => ({ trade, situation })));
 
 /** Balise <script> JSON-LD : « < » est échappé pour qu’aucun texte ne puisse fermer la balise. */
 export function jsonLdScript(data: object) {

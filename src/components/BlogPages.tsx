@@ -4,7 +4,7 @@ import type { MDXComponents } from "mdx/types";
 import { PostToc, TemplateQuote } from "@/components/BlogClient";
 import { TradeLinks } from "@/components/TradePages";
 import type { Dictionary } from "@/i18n";
-import { INTL_TAG, blogPath, fmt, localePath, pagePath, type Locale } from "@/i18n/config";
+import { INTL_TAG, blogPath, fmt, localePath, pagePath, toolPath, type Locale } from "@/i18n/config";
 import { blogIndexStructuredData, blogPostStructuredData, jsonLdScript } from "@/i18n/metadata";
 import { svgSize, type Post, type PostMeta } from "@/lib/blog";
 import { TEAM } from "@/lib/content";
@@ -66,7 +66,7 @@ function PostFacts({ lang, t, meta }: { lang: Locale; t: BlogText; meta: PostMet
 }
 
 /** Carte d’article : toute la carte est cliquable (le lien du titre la recouvre). */
-function PostCard({ lang, t, meta, featured, level = 2 }: { lang: Locale; t: BlogText; meta: PostMeta; featured?: boolean; level?: 2 | 3 }) {
+export function PostCard({ lang, t, meta, featured, level = 2 }: { lang: Locale; t: BlogText; meta: PostMeta; featured?: boolean; level?: 2 | 3 }) {
   const Title = level === 3 ? "h3" : "h2";
   return (
     <article className={featured ? "post-card featured" : "post-card"}>
@@ -204,6 +204,12 @@ export function BlogPostPage({ lang, dict, post, related }: { lang: Locale; dict
             <b>{t.asideTitle}</b>
             <p>{t.asideText}</p>
             <Link href={diagnosticHref}>{t.asideCta}</Link>
+          </div>
+          <div className="post-aside-card tool">
+            <span className="post-aside-tag">{t.toolEyebrow}</span>
+            <b>{t.toolTitle}</b>
+            <p>{t.toolText}</p>
+            <Link href={toolPath(lang, "quoteFollowUp")}>{t.toolCta}</Link>
           </div>
         </aside>
 
