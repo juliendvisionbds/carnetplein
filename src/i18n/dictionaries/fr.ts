@@ -27,6 +27,7 @@ export const fr: Dictionary = {
   nav: {
     mainNav: "Navigation principale",
     method: "La méthode",
+    blog: "Blog",
     mySpace: "Mon espace",
     startDiagnostic: "Faire le diagnostic",
     bookCall: "Réserver mon appel",
@@ -849,6 +850,29 @@ export const fr: Dictionary = {
     studioLink: "Voir visionbtp.com ↗",
     ctaTitle: "Regardons vos demandes ensemble.",
     ctaText: "Commencez par le diagnostic gratuit de trois minutes. Nous construirons la démo de votre tunnel de vente à partir de vos réponses.",
+  },
+
+  blog: {
+    title: "Blog : transformer plus de demandes de devis en projets signés",
+    description: "Guides pratiques pour les entreprises qui vendent sur devis : répondre aux demandes, relancer un devis sans être lourd, signer plus de projets parmi ceux que vous chiffrez.",
+    crumb: "Blog",
+    eyebrow: "Blog",
+    h1: "Le blog Vision",
+    intro: "Des guides concrets pour les entreprises qui vendent sur devis : répondre plus vite aux demandes, relancer sans être lourd, et signer plus de projets parmi ceux que vous chiffrez déjà.",
+    latest: "Dernier article",
+    readArticle: "Lire l’article →",
+    readingTime: "{minutes} min de lecture",
+    updated: "Mis à jour le {date}",
+    onThisPage: "Sur cette page",
+    asideEyebrow: "Diagnostic gratuit",
+    asideTitle: "Où se perdent vos demandes ?",
+    asideText: "Trois minutes pour repérer votre principal point de blocage, avec trois actions pour cette semaine.",
+    asideCta: "Faire le diagnostic →",
+    copy: "Copier",
+    copied: "Copié ✓",
+    more: "D’autres articles",
+    all: "Tous les articles →",
+    trades: "Vision pour votre métier",
   },
 
   privacy: {

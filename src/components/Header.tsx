@@ -52,6 +52,7 @@ export function Header({ lang, t, variant = "public" }: Props) {
         ) : (
           <>
             {!inEspace && <Link href={`${home}#methode`}>{t.method}</Link>}
+            {!inEspace && <Link href={localePath(lang, "/blog")}>{t.blog}</Link>}
             {token && !inEspace && <Link href={localePath(lang, `/espace/${token}`)}>{t.mySpace}</Link>}
             {inEspace ? (
               <>

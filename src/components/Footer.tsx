@@ -32,6 +32,7 @@ export function Footer({ lang, dict, variant = "public" }: Props) {
         { href: diagnostic, label: t.diagnostic },
         { href: `${home}#methode`, label: t.method },
         { href: `${home}#faq`, label: t.faq },
+        { href: localePath(lang, "/blog"), label: dict.blog.crumb },
       ],
     },
     {

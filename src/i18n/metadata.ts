@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { COMPANY, PRICE, SITE, TEAM } from "@/lib/content";
 import { getDictionary } from "@/i18n";
-import { OG_LOCALE, TRADE_KEYS, fmt, localePath, otherLocale, pagePath, tradePath, type Locale, type LocalizedPage, type TradeKey } from "@/i18n/config";
+import { OG_LOCALE, TRADE_KEYS, blogPath, fmt, localePath, otherLocale, pagePath, tradePath, type BlogKey, type Locale, type LocalizedPage, type TradeKey } from "@/i18n/config";
+import type { PostMeta } from "@/lib/blog";
 
-/** Une page publique : adresse fixe (identique dans les deux langues), page à segment traduit ou page métier. */
-export type PageRef = { path: string } | { page: LocalizedPage } | { trade: TradeKey };
+/** Une page publique : adresse fixe (identique dans les deux langues), page à segment traduit, page métier ou article du blog. */
+export type PageRef = { path: string } | { page: LocalizedPage } | { trade: TradeKey } | { post: BlogKey };
 
 export function pathFor(lang: Locale, ref: PageRef): string {
   if ("trade" in ref) return tradePath(lang, ref.trade);
+  if ("post" in ref) return blogPath(lang, ref.post);
   return "page" in ref ? pagePath(lang, ref.page) : localePath(lang, ref.path);
 }
 
@@ -235,6 +237,102 @@ export function teamStructuredData(lang: Locale) {
       { "@type": "AboutPage", "@id": `${url}#webpage`, url, name: t.title, description: t.description, inLanguage: lang, about: ORG_REF },
       organizationNode(lang),
     ],
+  };
+}
+
+/** Auteur d’un article : le membre de l’équipe du même nom (même @id que sur les pages À propos et Équipe), sinon une personne simple. */
+function authorNode(lang: Locale, post: PostMeta) {
+  const member = TEAM.find((m) => m.name === post.author.name);
+  if (!member) return { "@type": "Person", name: post.author.name, jobTitle: post.author.role, ...(post.author.url ? { url: post.author.url } : {}) };
+  return { "@type": "Person", "@id": `${SITE.url}/#${member.key}`, name: member.name, jobTitle: post.author.role, url: absoluteUrl(pagePath(lang, "team")), sameAs: [member.linkedin] };
+}
+
+/** Un article (schema.org BlogPosting), rattaché au blog de sa langue. */
+function postNode(lang: Locale, post: PostMeta) {
+  const url = absoluteUrl(post.path);
+  return {
+    "@type": "BlogPosting",
+    "@id": `${url}#article`,
+    headline: post.title,
+    description: post.description,
+    url,
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    inLanguage: lang,
+    datePublished: post.date,
+    dateModified: post.updated ?? post.date,
+    ...(post.cover ? { image: { "@type": "ImageObject", url: absoluteUrl(post.cover.src), width: post.cover.width, height: post.cover.height } } : {}),
+    author: authorNode(lang, post),
+    publisher: ORG_REF,
+    isPartOf: { "@id": `${absoluteUrl(blogPath(lang))}#blog` },
+    articleSection: post.category,
+    keywords: post.keywords.join(", "),
+    timeRequired: `PT${post.readingTime}M`,
+  };
+}
+
+/** Données structurées de la page du blog : fil d’Ariane et le blog avec ses articles. */
+export function blogIndexStructuredData(lang: Locale, posts: PostMeta[]) {
+  const t = getDictionary(lang).blog;
+  const url = absoluteUrl(blogPath(lang));
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbList(lang, [{ name: t.crumb, path: blogPath(lang) }]),
+      { "@type": "Blog", "@id": `${url}#blog`, url, name: t.h1, description: t.description, inLanguage: lang, publisher: ORG_REF, blogPost: posts.map((post) => postNode(lang, post)) },
+    ],
+  };
+}
+
+/** Données structurées d’un article : fil d’Ariane, l’article (auteur, dates, image) et la FAQ de son en-tête. */
+export function blogPostStructuredData(lang: Locale, post: PostMeta) {
+  const t = getDictionary(lang).blog;
+  const url = absoluteUrl(post.path);
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbList(lang, [
+        { name: t.crumb, path: blogPath(lang) },
+        { name: post.title, path: post.path },
+      ]),
+      postNode(lang, post),
+      ...(post.faq.length
+        ? [
+            {
+              "@type": "FAQPage",
+              "@id": `${url}#faq`,
+              inLanguage: lang,
+              mainEntity: post.faq.map(({ question, answer }) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })),
+            },
+          ]
+        : []),
+    ],
+  };
+}
+
+/** Métadonnées d’un article : titre SEO tel quel, hreflang vers sa traduction, Open Graph « article » avec la couverture. */
+export function blogPostMetadata(lang: Locale, post: PostMeta): Metadata {
+  const title = post.seoTitle ?? post.title;
+  const base = pageMetadata(lang, { post: post.key }, { title, description: post.description, absoluteTitle: true });
+  const cover = post.cover ? [{ url: post.cover.src, width: post.cover.width, height: post.cover.height, alt: post.cover.alt }] : undefined;
+  return {
+    ...base,
+    authors: [{ name: post.author.name, url: post.author.url }],
+    openGraph: {
+      title,
+      description: post.description,
+      url: post.path,
+      siteName: SITE.name,
+      type: "article",
+      locale: OG_LOCALE[lang],
+      alternateLocale: [OG_LOCALE[otherLocale(lang)]],
+      publishedTime: post.date,
+      modifiedTime: post.updated ?? post.date,
+      authors: [post.author.url ?? post.author.name],
+      section: post.category,
+      tags: post.tags,
+      images: cover ?? base.openGraph?.images,
+    },
+    twitter: { card: "summary_large_image", title, description: post.description, ...(cover ? { images: [cover[0].url] } : {}) },
   };
 }
 

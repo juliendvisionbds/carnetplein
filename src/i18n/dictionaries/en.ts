@@ -32,6 +32,7 @@ export const en = {
   nav: {
     mainNav: "Main navigation",
     method: "The method",
+    blog: "Blog",
     mySpace: "My space",
     startDiagnostic: "Start the diagnostic",
     bookCall: "Book my call",
@@ -863,6 +864,30 @@ export const en = {
     studioLink: "Visit visionbtp.com ↗",
     ctaTitle: "Let’s look at your inquiries together.",
     ctaText: "Start with the free three-minute diagnostic. We’ll build the demo of your sales funnel from your answers.",
+  },
+
+  /** Blog (/blog) : page des articles et habillage des articles. Le texte des articles vit dans content/blog/en. */
+  blog: {
+    title: "Blog: turning quote requests into signed projects",
+    description: "Practical guides for businesses that sell on quotes: answering inquiries, following up on quotes without being pushy, and signing more of the projects you price.",
+    crumb: "Blog",
+    eyebrow: "Blog",
+    h1: "The Vision blog",
+    intro: "Practical guides for businesses that sell on quotes: answering inquiries faster, following up without being pushy, and signing more of the projects you already price.",
+    latest: "Latest article",
+    readArticle: "Read the article →",
+    readingTime: "{minutes} min read",
+    updated: "Updated {date}",
+    onThisPage: "On this page",
+    asideEyebrow: "Free diagnostic",
+    asideTitle: "Where do your inquiries get lost?",
+    asideText: "Three minutes to find your main bottleneck, with three actions for this week.",
+    asideCta: "Start the diagnostic →",
+    copy: "Copy",
+    copied: "Copied ✓",
+    more: "More articles",
+    all: "All articles →",
+    trades: "Vision for your trade",
   },
 
   privacy: {

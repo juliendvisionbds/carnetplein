@@ -64,6 +64,23 @@ export function tradeFromSlug(lang: Locale, slug: string): TradeKey | null {
   return TRADE_KEYS.find((key) => TRADE_SLUGS[key][lang] === slug) ?? null;
 }
 
+/**
+ * Articles du blog (/blog/<slug> ↔ /fr/blog/<slug>) : une clé stable par article, son slug dans chaque langue.
+ * Le texte vit dans content/blog/<langue>/<slug>.mdx, les images dans public/blog/<clé>/.
+ * Pour publier un article : déposer les deux fichiers MDX, puis ajouter sa ligne ici. Le build
+ * échoue si un fichier manque, si un MDX n’est pas déclaré ici ou si son en-tête ne correspond pas.
+ */
+export const BLOG_SLUGS = {
+  "quote-follow-up": { en: "how-to-follow-up-on-a-quote", fr: "relancer-un-devis-modeles" },
+  "client-silence": { en: "client-not-responding-after-quote", fr: "client-ne-repond-plus-apres-devis" },
+} as const;
+export type BlogKey = keyof typeof BLOG_SLUGS;
+export const BLOG_KEYS = Object.keys(BLOG_SLUGS) as BlogKey[];
+
+export function blogPostFromSlug(lang: Locale, slug: string): BlogKey | null {
+  return BLOG_KEYS.find((key) => BLOG_SLUGS[key][lang] === slug) ?? null;
+}
+
 /** Préfixe une adresse interne pour la langue donnée : localePath("fr", "/diagnostic") → "/fr/diagnostic". */
 export function localePath(lang: Locale, path = "/"): string {
   const clean = path.startsWith("/") ? path : `/${path}`;
@@ -77,6 +94,11 @@ export function pagePath(lang: Locale, page: LocalizedPage): string {
 
 export function tradePath(lang: Locale, trade: TradeKey): string {
   return localePath(lang, `/${LOCALIZED_SLUGS.trades[lang]}/${TRADE_SLUGS[trade][lang]}`);
+}
+
+/** Le blog (/blog ↔ /fr/blog, même segment dans les deux langues) ou l’un de ses articles. */
+export function blogPath(lang: Locale, post?: BlogKey): string {
+  return localePath(lang, post ? `/blog/${BLOG_SLUGS[post][lang]}` : "/blog");
 }
 
 /** Sépare le préfixe de langue du reste de l’adresse : "/fr/diagnostic" → { lang: "fr", path: "/diagnostic" }. Accepte aussi "/en/…" (adresse interne). */
@@ -96,6 +118,8 @@ export function switchLocalePath(pathname: string, target: Locale): string {
   if (page && rest.length === 0) return pagePath(target, page);
   const trade = page === "trades" && rest.length === 1 ? tradeFromSlug(lang, rest[0]) : null;
   if (trade) return tradePath(target, trade);
+  const post = first === "blog" && rest.length === 1 ? blogPostFromSlug(lang, rest[0]) : null;
+  if (post) return blogPath(target, post);
   return localePath(target, path);
 }
 
