@@ -34,6 +34,7 @@ export const LOCALIZED_SLUGS = {
   trades: { en: "trades", fr: "metiers" },
   about: { en: "about", fr: "a-propos" },
   team: { en: "team", fr: "equipe" },
+  tools: { en: "tools", fr: "outils" },
 } as const;
 export type LocalizedPage = keyof typeof LOCALIZED_SLUGS;
 
@@ -83,6 +84,38 @@ export function blogPostFromSlug(lang: Locale, slug: string): BlogKey | null {
   return BLOG_KEYS.find((key) => BLOG_SLUGS[key][lang] === slug) ?? null;
 }
 
+/**
+ * Outils gratuits, rangés sous la page « tools » : /tools/quote-follow-up ↔ /fr/outils/relance-devis.
+ * Les textes vivent dans la section « tools » des dictionnaires.
+ */
+export const TOOL_SLUGS = {
+  quoteFollowUp: { en: "quote-follow-up", fr: "relance-devis" },
+} as const;
+export type ToolKey = keyof typeof TOOL_SLUGS;
+export const TOOL_KEYS = Object.keys(TOOL_SLUGS) as ToolKey[];
+
+export function toolFromSlug(lang: Locale, slug: string): ToolKey | null {
+  return TOOL_KEYS.find((key) => TOOL_SLUGS[key][lang] === slug) ?? null;
+}
+
+/**
+ * Situations du générateur de relances. Chaque couple métier × situation a sa page de modèles, rangée sous l’outil :
+ * /tools/quote-follow-up/kitchen-installers/no-reply ↔ /fr/outils/relance-devis/cuisinistes/sans-reponse.
+ * Les modèles de messages vivent dans src/i18n/follow-up, sous la même clé.
+ */
+export const FOLLOW_UP_SITUATIONS = {
+  silence: { en: "no-reply", fr: "sans-reponse" },
+  thinking: { en: "thinking-it-over", fr: "client-reflechit" },
+  postponed: { en: "project-postponed", fr: "projet-reporte" },
+  price: { en: "price-objection", fr: "trop-cher" },
+} as const;
+export type FollowUpSituation = keyof typeof FOLLOW_UP_SITUATIONS;
+export const FOLLOW_UP_SITUATION_KEYS = Object.keys(FOLLOW_UP_SITUATIONS) as FollowUpSituation[];
+
+export function situationFromSlug(lang: Locale, slug: string): FollowUpSituation | null {
+  return FOLLOW_UP_SITUATION_KEYS.find((key) => FOLLOW_UP_SITUATIONS[key][lang] === slug) ?? null;
+}
+
 /** Préfixe une adresse interne pour la langue donnée : localePath("fr", "/diagnostic") → "/fr/diagnostic". */
 export function localePath(lang: Locale, path = "/"): string {
   const clean = path.startsWith("/") ? path : `/${path}`;
@@ -96,6 +129,17 @@ export function pagePath(lang: Locale, page: LocalizedPage): string {
 
 export function tradePath(lang: Locale, trade: TradeKey): string {
   return localePath(lang, `/${LOCALIZED_SLUGS.trades[lang]}/${TRADE_SLUGS[trade][lang]}`);
+}
+
+/** La page des outils (/tools ↔ /fr/outils) ou l’un des outils. */
+export function toolPath(lang: Locale, tool?: ToolKey): string {
+  const base = `/${LOCALIZED_SLUGS.tools[lang]}`;
+  return localePath(lang, tool ? `${base}/${TOOL_SLUGS[tool][lang]}` : base);
+}
+
+/** Page de modèles de relance pour un métier et une situation. */
+export function followUpPath(lang: Locale, trade: TradeKey, situation: FollowUpSituation): string {
+  return `${toolPath(lang, "quoteFollowUp")}/${TRADE_SLUGS[trade][lang]}/${FOLLOW_UP_SITUATIONS[situation][lang]}`;
 }
 
 /** Le blog (/blog ↔ /fr/blog, même segment dans les deux langues) ou l’un de ses articles. */
@@ -120,6 +164,13 @@ export function switchLocalePath(pathname: string, target: Locale): string {
   if (page && rest.length === 0) return pagePath(target, page);
   const trade = page === "trades" && rest.length === 1 ? tradeFromSlug(lang, rest[0]) : null;
   if (trade) return tradePath(target, trade);
+  const tool = page === "tools" && (rest.length === 1 || rest.length === 3) ? toolFromSlug(lang, rest[0]) : null;
+  if (tool && rest.length === 1) return toolPath(target, tool);
+  if (tool === "quoteFollowUp") {
+    const caseTrade = tradeFromSlug(lang, rest[1]);
+    const situation = situationFromSlug(lang, rest[2]);
+    if (caseTrade && situation) return followUpPath(target, caseTrade, situation);
+  }
   const post = first === "blog" && rest.length === 1 ? blogPostFromSlug(lang, rest[0]) : null;
   if (post) return blogPath(target, post);
   return localePath(target, path);
