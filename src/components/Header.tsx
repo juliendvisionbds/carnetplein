@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LEAD_TOKEN_KEY } from "@/lib/client-storage";
 import { LogoMark } from "@/components/LogoMark";
-import { LangSwitch } from "@/components/LangSwitch";
 import { localePath, stripLocale, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n";
 
@@ -29,7 +28,6 @@ export function Header({ lang, t, variant = "public" }: Props) {
   const inEspace = path.startsWith("/espace");
   const inQuiz = path.startsWith("/diagnostic");
   const espaceToken = inEspace ? path.split("/")[2] : null;
-  const switcher = <LangSwitch lang={lang} label={t.switchLabel} text={t.switchShort} />;
 
   return (
     <header className="site">
@@ -50,7 +48,6 @@ export function Header({ lang, t, variant = "public" }: Props) {
               <span className="hide-sm">{t.quizNoteLong}</span>
               <span className="only-sm">{t.quizNoteShort}</span>
             </span>
-            {switcher}
           </>
         ) : (
           <>
@@ -73,7 +70,6 @@ export function Header({ lang, t, variant = "public" }: Props) {
                 {t.startDiagnostic} <span>↗</span>
               </Link>
             )}
-            {switcher}
           </>
         )}
       </nav>

@@ -1,19 +1,19 @@
 import Link from "next/link";
 import { COMPANY, SITE } from "@/lib/content";
+import { Flag } from "@/components/Flag";
 import { LangSwitch } from "@/components/LangSwitch";
-import { LOCALE_NAME, TRADE_KEYS, fmt, localePath, otherLocale, pagePath, tradePath, type Locale } from "@/i18n/config";
+import { LOCALES, LOCALE_NAME, TRADE_KEYS, fmt, localePath, pagePath, tradePath, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n";
 
 type Props = { lang: Locale; dict: Dictionary; variant?: "public" | "admin" };
 
 /**
  * Pied de page : la marque et l’appel au diagnostic, trois colonnes de liens (métiers, commencer, Vision),
- * puis une ligne avec le copyright, le lien vers VisionBTP et le changement de langue.
+ * puis une ligne avec le copyright, le lien vers VisionBTP et les drapeaux des langues (le seul sélecteur de langue du site).
  * Le back-office n’affiche que la dernière ligne.
  */
 export function Footer({ lang, dict, variant = "public" }: Props) {
   const t = dict.footer;
-  const other = otherLocale(lang);
   const home = localePath(lang, "/");
   const diagnostic = localePath(lang, "/diagnostic");
   const columns = [
@@ -85,8 +85,19 @@ export function Footer({ lang, dict, variant = "public" }: Props) {
         <a href={COMPANY.builtBy.url} target="_blank" rel="noopener">
           {fmt(t.builtBy, { studio: COMPANY.builtBy.name })} ↗
         </a>
-        <span>
-          <span className="footer-lang">{LOCALE_NAME[lang]}</span> · <LangSwitch lang={lang} label={dict.nav.switchLabel} text={LOCALE_NAME[other]} className="small" />
+        <span className="footer-langs">
+          {LOCALES.map((l) =>
+            l === lang ? (
+              <span key={l} className="flag current" lang={l} title={LOCALE_NAME[l]}>
+                <Flag lang={l} />
+                <span className="sr-only">{LOCALE_NAME[l]}</span>
+              </span>
+            ) : (
+              <LangSwitch key={l} lang={lang} label={dict.nav.switchLabel} className="flag">
+                <Flag lang={l} />
+              </LangSwitch>
+            ),
+          )}
         </span>
       </div>
     </footer>

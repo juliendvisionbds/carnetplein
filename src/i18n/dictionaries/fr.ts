@@ -38,7 +38,6 @@ export const fr: Dictionary = {
     adminDashboard: "Pilotage",
     adminPublicSite: "Site public ↗",
     switchLabel: "English version",
-    switchShort: "EN",
   },
 
   footer: {

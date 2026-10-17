@@ -43,7 +43,6 @@ export const en = {
     adminDashboard: "Dashboard",
     adminPublicSite: "Public site ↗",
     switchLabel: "Version française",
-    switchShort: "FR",
   },
 
   footer: {
