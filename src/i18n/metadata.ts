@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PRICE, SITE } from "@/lib/content";
+import { COMPANY, PRICE, SITE, TEAM } from "@/lib/content";
 import { getDictionary } from "@/i18n";
 import { OG_LOCALE, TRADE_KEYS, fmt, localePath, otherLocale, pagePath, tradePath, type Locale, type LocalizedPage, type TradeKey } from "@/i18n/config";
 
@@ -48,6 +48,42 @@ export function pageMetadata(lang: Locale, ref: PageRef, { title, description, a
   };
 }
 
+const ORG_REF = { "@id": `${SITE.url}/#organization` };
+
+/** Un membre de l’équipe (schema.org Person), avec son profil LinkedIn. */
+function personNode(lang: Locale, member: (typeof TEAM)[number]) {
+  const t = getDictionary(lang).team.members[member.key];
+  return {
+    "@type": "Person",
+    "@id": `${SITE.url}/#${member.key}`,
+    name: member.name,
+    jobTitle: t.role,
+    description: `${t.experience} ${t.background}`,
+    image: `${SITE.url}${member.photo}`,
+    url: absoluteUrl(pagePath(lang, "team")),
+    sameAs: [member.linkedin],
+    worksFor: ORG_REF,
+  };
+}
+
+/** L’organisation (schema.org), identique sur toutes les pages qui la décrivent : fondateurs, création, siège. */
+function organizationNode(lang: Locale) {
+  const t = getDictionary(lang);
+  return {
+    "@type": "Organization",
+    ...ORG_REF,
+    name: SITE.name,
+    url: SITE.url,
+    logo: { "@type": "ImageObject", url: `${SITE.url}/apple-icon`, width: 180, height: 180 },
+    slogan: t.meta.tagline,
+    description: t.about.lead,
+    foundingDate: String(COMPANY.founded),
+    founder: TEAM.map((member) => personNode(lang, member)),
+    address: { "@type": "PostalAddress", addressRegion: COMPANY.region, addressCountry: COMPANY.countryCode },
+    knowsLanguage: ["en", "fr"],
+  };
+}
+
 /**
  * Données structurées de l’accueil (JSON-LD schema.org) : l’organisation, le site, le service
  * et ses tarifs, et la FAQ affichée sur la page. Adresses absolues, dans la langue de la page.
@@ -57,21 +93,14 @@ export function homeStructuredData(lang: Locale) {
   const abs = (path: string) => (path === "/" ? SITE.url : `${SITE.url}${path}`);
   const home = abs(localePath(lang, "/"));
   const id = (fragment: string) => `${SITE.url}${localePath(lang, "/")}#${fragment}`;
-  const org = { "@id": `${SITE.url}/#organization` };
+  const org = ORG_REF;
   const price = (amount: number, extra: object = {}) => ({ "@type": "UnitPriceSpecification", price: amount, priceCurrency: "EUR", valueAddedTaxIncluded: false, ...extra });
   const answer = (text: string) => ({ "@type": "Answer", text });
 
   return {
     "@context": "https://schema.org",
     "@graph": [
-      {
-        "@type": "Organization",
-        ...org,
-        name: SITE.name,
-        url: SITE.url,
-        logo: { "@type": "ImageObject", url: `${SITE.url}/apple-icon`, width: 180, height: 180 },
-        description: t.meta.tagline,
-      },
+      organizationNode(lang),
       { "@type": "WebSite", "@id": `${SITE.url}/#website`, url: SITE.url, name: SITE.name, inLanguage: lang, publisher: org },
       {
         "@type": "Service",
@@ -159,6 +188,52 @@ export function tradeStructuredData(lang: Locale, trade: TradeKey) {
         inLanguage: lang,
         mainEntity: [...p.faq, t.faqPrice].map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: fmt(a, priceVars) } })),
       },
+    ],
+  };
+}
+
+/** Variables de prix des textes ({setup}, {monthly}, {footnote}). */
+export function priceVars(lang: Locale) {
+  const t = getDictionary(lang).pricing;
+  return { setup: t.setup, monthly: t.monthly, footnote: t.footnote.toLowerCase() };
+}
+
+/** Variables d’entreprise des textes de la page À propos et de la page Équipe ({founded}, {studio}, {studioFounded}). */
+export function companyVars() {
+  return { founded: COMPANY.founded, studio: COMPANY.builtBy.name, studioFounded: COMPANY.builtBy.founded };
+}
+
+/** Données structurées de la page À propos : fil d’Ariane, la page, l’organisation (fondateurs compris) et la FAQ affichée. */
+export function aboutStructuredData(lang: Locale) {
+  const t = getDictionary(lang).about;
+  const url = absoluteUrl(pagePath(lang, "about"));
+  const vars = { ...priceVars(lang), ...companyVars() };
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbList(lang, [{ name: t.crumb, path: pagePath(lang, "about") }]),
+      { "@type": "AboutPage", "@id": `${url}#webpage`, url, name: t.title, description: t.description, inLanguage: lang, about: ORG_REF, mainEntity: ORG_REF },
+      organizationNode(lang),
+      {
+        "@type": "FAQPage",
+        "@id": `${url}#faq`,
+        inLanguage: lang,
+        mainEntity: t.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: fmt(a, vars) } })),
+      },
+    ],
+  };
+}
+
+/** Données structurées de la page Équipe : fil d’Ariane, la page et l’organisation avec ses fondateurs. */
+export function teamStructuredData(lang: Locale) {
+  const t = getDictionary(lang).team;
+  const url = absoluteUrl(pagePath(lang, "team"));
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbList(lang, [{ name: t.crumb, path: pagePath(lang, "team") }]),
+      { "@type": "AboutPage", "@id": `${url}#webpage`, url, name: t.title, description: t.description, inLanguage: lang, about: ORG_REF },
+      organizationNode(lang),
     ],
   };
 }

@@ -32,6 +32,8 @@ export const LOCALIZED_SLUGS = {
   privacy: { en: "privacy", fr: "confidentialite" },
   legal: { en: "legal-notice", fr: "mentions-legales" },
   trades: { en: "trades", fr: "metiers" },
+  about: { en: "about", fr: "a-propos" },
+  team: { en: "team", fr: "equipe" },
 } as const;
 export type LocalizedPage = keyof typeof LOCALIZED_SLUGS;
 

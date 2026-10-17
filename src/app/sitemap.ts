@@ -10,6 +10,8 @@ const PAGES: Entry[] = [
   { ref: { path: "/diagnostic" }, changeFrequency: "monthly", priority: 0.9 },
   { ref: { page: "trades" }, changeFrequency: "monthly", priority: 0.7 },
   ...TRADE_KEYS.map((trade): Entry => ({ ref: { trade }, changeFrequency: "monthly", priority: 0.8 })),
+  { ref: { page: "about" }, changeFrequency: "monthly", priority: 0.6 },
+  { ref: { page: "team" }, changeFrequency: "monthly", priority: 0.5 },
   { ref: { page: "privacy" }, changeFrequency: "yearly", priority: 0.2 },
   { ref: { page: "legal" }, changeFrequency: "yearly", priority: 0.2 },
 ];

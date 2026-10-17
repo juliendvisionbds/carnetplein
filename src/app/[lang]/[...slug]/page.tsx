@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AboutPage, TeamPage } from "@/components/AboutPages";
 import { TradePage, TradesIndex } from "@/components/TradePages";
 import { EDITOR } from "@/lib/content";
 import { getDictionary } from "@/i18n";
@@ -9,7 +10,7 @@ import { pageMetadata } from "@/i18n/metadata";
 
 /**
  * Pages à segment traduit (/privacy ↔ /fr/confidentialite, /legal-notice ↔ /fr/mentions-legales,
- * /trades ↔ /fr/metiers) et pages métiers rangées sous /trades (/trades/kitchen-installers ↔ /fr/metiers/cuisinistes).
+ * /trades ↔ /fr/metiers, /about ↔ /fr/a-propos, /team ↔ /fr/equipe) et pages métiers rangées sous /trades (/trades/kitchen-installers ↔ /fr/metiers/cuisinistes).
  * Toute autre adresse sous une langue connue aboutit ici et renvoie une vraie 404.
  */
 
@@ -41,6 +42,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     return pageMetadata(r.lang, { trade: r.trade }, { title: p.title, description: p.description });
   }
   if (r.page === "trades") return pageMetadata(r.lang, { page: r.page }, { title: t.trades.index.title, description: t.trades.index.description });
+  if (r.page === "about") return pageMetadata(r.lang, { page: r.page }, { title: t.about.title, description: t.about.description, absoluteTitle: true });
+  if (r.page === "team") return pageMetadata(r.lang, { page: r.page }, { title: t.team.title, description: t.team.description, absoluteTitle: true });
   const s = r.page === "privacy" ? t.privacy : t.legal;
   return pageMetadata(r.lang, { page: r.page }, { title: s.title, description: `${s.h1} ${s.intro}` });
 }
@@ -53,6 +56,8 @@ export default async function LocalizedPage({ params }: { params: Params }) {
 
   if (r.trade) return <TradePage lang={lang} dict={dict} trade={r.trade} />;
   if (page === "trades") return <TradesIndex lang={lang} dict={dict} />;
+  if (page === "about") return <AboutPage lang={lang} dict={dict} />;
+  if (page === "team") return <TeamPage lang={lang} dict={dict} />;
 
   if (page === "privacy") {
     const t = dict.privacy;

@@ -118,7 +118,7 @@ export default async function HomePage({ params }: { params: Params }) {
         <TradeLinks lang={lang} t={dict.trades} />
       </section>
 
-      <section className="block faq">
+      <section className="block faq" id="faq">
         <h2>{t.faqTitle}</h2>
         {t.faq.map(([q, a]) => (
           <details key={q}>

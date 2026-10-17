@@ -21,7 +21,7 @@ export function Shell({ lang, variant = "public", children }: Props) {
       <body>
         <Header lang={lang} t={t.nav} variant={variant} />
         <main id="app">{children}</main>
-        <Footer lang={lang} t={t.footer} tagline={t.meta.tagline} switchLabel={t.nav.switchLabel} />
+        <Footer lang={lang} dict={t} variant={variant} />
         <Toaster />
         <UtmCapture />
       </body>
